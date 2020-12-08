@@ -465,3 +465,172 @@ def deleteNode(self, node):
     node.next = node.next.next
 ```
 
+### [02.04. Partition List LCCI](https://leetcode-cn.com/problems/partition-list-lcci/)
+
+This is the idea of quick sort, we partition the list according to a pivotal.
+
+The idea of quick sort partition is that, two pointer p1 and p2, p1 is reserved for all smaller values than pivotal, p2 is go ahead to find smaller values, if no found, p2 continue moving on, if found, p2 swap value with p1, then p1 and p2 both moving next. Until p2 reach the end.
+
+```python
+def partition(self, head, x):
+    if not head: return head
+
+    p, q = head, head
+    while q:
+        if q.val < x:
+            q.val, p.val = p.val, q.val
+            p = p.next
+        q = q.next
+    return head
+```
+Above code is doing Node swapping by swapping the value.
+
+Another straightforward solution is we create two Linked list, the first one link the smaller nodes, the second link the bigger nodes. and finally, we put the bigger list after the smaller list.
+
+### [02.05. Sum Lists LCCI](https://leetcode-cn.com/problems/sum-lists-lcci/)
+<p><strong>Example</strong></p>
+
+<pre><strong>Input</strong>(7 -&gt; 1 -&gt; 6) + (5 -&gt; 9 -&gt; 2)，即617 + 295
+<strong>Output</strong>2 -&gt; 1 -&gt; 9，即912
+</pre>
+
+```python
+def addTwoNumbers(self, l1: ListNode, l2: ListNode) -> ListNode:
+    head = ListNode(0)
+    node = head
+    carry = 0
+    while l1 or l2:
+        if l1 == None:
+            node.next = l2
+            l1 = ListNode(0)
+        if l2 == None:
+            node.next = l1
+            l2 = ListNode(0)
+        sum_up = carry + l1.val + l2.val
+        node.next = ListNode(sum_up % 10)
+        carry = sum_up // 10 
+        node = node.next
+        l1 = l1.next 
+        l2 = l2.next 
+    if carry:
+        node.next = ListNode(carry)
+    return head.next
+```
+
+Note that if one of list is longer, we use 0 to make up.
+
+
+Advanced:
+Suppose the digits are stored in forward order. Repeat the above problem：
+<pre><strong>Input:</strong>(6 -&gt; 1 -&gt; 7) + (2 -&gt; 9 -&gt; 5)，即617 + 295
+<strong>Output:</strong>9 -&gt; 1 -&gt; 2，即912
+</pre>
+
+Here we can use recursion, but recursion is difficult to understand, so I am using another straightforward way, we convert each list to a number, sum them, the convert back to a list.
+
+```python
+def addTwoNumbers(self, l1, l2):
+    # two array to store the fetched integer
+    list1 = []
+    list2 = []
+    # populate the list with numbers
+    self.add(list1, l1)
+    self.add(list2, l2)
+
+    # calculate the value of the number
+    num1 = self.getNumberFromList(list1)
+    num2 = self.getNumberFromList(list2)
+
+    # calculate the sum
+    s = num1 + num2
+
+    # convert the sum to a linked list
+    head = ListNode(-1)
+    result = ListNode(s % 10)
+    head.next = result
+    r = s // 10
+    while r != 0:
+        temp = head.next
+        head.next = ListNode(r % 10)
+        head.next.next = temp
+        r = r // 10
+    return head.next
+
+def getNumberFromList(self, list) -> int:
+    weight = 1
+    num1 = 0
+    for i in list1[::-1]:
+        num1 += weight * i
+        weight *= 10
+    return num1
+
+def add(self, list, linkedList):
+    if not linkedList:
+        return
+    self.add(list, linkedList.next)
+    list.append(linkedList.val)
+    return
+```
+
+### [02.06. Palindrome Linked List LCCI](https://leetcode-cn.com/problems/palindrome-linked-list-lcci/)
+
+Take advantage of other data structure. 
+
+For palindrome, reverse it, we can get the same as original list.
+
+#### Use stack:
+
+```python
+def isPalindrome(self, head):
+    stack = []
+    temHead = head
+    while temHead:
+        stack.append(temHead.val)
+        temHead = temHead.next
+
+    while head:
+        if head.val != stack.pop():
+            return False
+        head = head.next
+    return True
+```
+
+#### Reverse the singly linked list:
+
+Using stack has a O(n) space complexity, we can do better.
+
+First, using two pointers to find the middle of the linked list.
+Second, reverse the later half.
+Third, compare the first part with second part, check if they are the same.
+
+```python
+def isPalindrome(self, head):
+    faster = head
+    slower = head
+    # find the middle
+    while faster and faster.next:
+        faster = faster.next.next
+        slower = slower.next
+    # If number is odd, we take the next of the middle
+    if faster:
+        slower = slower.next
+
+    faster = head
+    # reverse the second part
+    pre = None
+
+    while slower:
+        nex = slower.next
+        slower.next = pre
+        pre = slower
+        slower = nex
+
+    # compare the second part with the first part
+    while pre:
+        if faster.val != pre.val:
+            return False
+        pre = pre.next
+        faster = faster.next
+    return True
+```
+
