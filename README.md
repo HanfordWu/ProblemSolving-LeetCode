@@ -637,3 +637,303 @@ def isPalindrome(self, head):
 
 ### [02.07. Intersection of Two Linked Lists LCCI](https://leetcode-cn.com/problems/intersection-of-two-linked-lists-lcci/)
 
+#### Using a HashSet
+We are checking if the set already has the object, we can use a HashSet, if hash method is not overrode, the default is comparing "==", the address of the object, which is exactly the identity of the object.
+
+```python
+def getIntersectionNode(self, headA, headB):
+    se = set()
+    while headA:
+        se.add(headA)
+        headA = headA.next
+
+    while headB:
+        if headB in se:
+            return headB
+        headB = headB.next
+    return None
+```
+
+#### We can also find the intersection in place
+
+Two pointers A and B, A iterate from headA, after reaching the end, switch to headB. B iterate from headB, after reaching the end, switch to headA. A and B will meet at the intersection. If headA and headB don't intersect, A and B will meet at null.
+
+```python
+def getIntersectionNode(self, headA, headB):
+    pointer1 = headA
+    pointer2 = headB
+
+    while pointer1 != pointer2:
+        pointer1 = headB if pointer1 is None else pointer1.next
+        pointer2 = headA if pointer2 is None else pointer2.next
+
+    return pointer1
+```
+
+### [02.08. Linked List Cycle LCCI](https://leetcode-cn.com/problems/linked-list-cycle-lcci/)
+
+#### Using a set to check if the node has appeared
+
+```python
+def detectCycle(self, head):
+    my_set = set()
+    cursor = head
+    while cursor:
+        if cursor in my_set:
+            return cursor
+        my_set.add(cursor)
+        cursor = cursor.next
+    return None
+```
+
+#### Two pointers, faster and slower
+
+If there is cycle, they will meet, then move faster to head, move them one step once, till they meet again, that the intersection.
+
+```python
+def detectCycle(self, head):
+    faster = head
+    slower = head
+
+    while faster and faster.next:
+        faster = faster.next.next
+        slower = slower.next
+        if faster == slower:
+            faster = head
+            while faster != slower:
+                faster = faster.next
+                slower = slower.next
+            return faster
+    return None
+```
+
+### [03.01. Three in One LCCI](https://leetcode-cn.com/problems/three-in-one-lcci/)
+
+If implement two stacks with one array, we can grow two stacks from two ends. So that we can make full use of the stack.
+
+Now we are asked to implement three stacks with one array, and it tells us the size of the stack, so we can create an array with three times of the stack, and grow them individually.
+
+But I am going to use another way, three stacks can be stored into three some spaces, stack0 occupy 0,3,6,9..., stack1 occupy 1,4,7..., stack2 occupy 2,5,8..., **for convenience, we can use position 0,1,2 to store the corresponding next position of the stacks. the real elements start from 3,4,5.**
+
+```python
+def __init__(self, stackSize):
+    """
+    :type stackSize: int
+    """
+    self.arr = [None] * (stackSize*3+3)
+    self.size = stackSize
+    self.arr[0] = 3
+    self.arr[1] = 4
+    self.arr[2] = 5
+
+def push(self, stackNum, value):
+    """
+    :type stackNum: int
+    :type value: int
+    :rtype: None
+    """
+    if self.arr[stackNum] // 3 >   self.size:
+        return
+    self.arr[self.arr[stackNum]] = value
+    self.arr[stackNum] += 3
+
+def pop(self, stackNum):
+    """
+    :type stackNum: int
+    :rtype: int
+    """
+    if self.arr[stackNum] < 6:
+        return -1
+    self.arr[stackNum] -= 3
+    res = self.arr[self.arr[stackNum]]
+    self.arr[self.arr[stackNum]] = None
+    return res
+
+
+def peek(self, stackNum):
+    """
+    :type stackNum: int
+    :rtype: int
+    """
+    if self.arr[stackNum] < 6:
+        return -1
+    res = self.arr[self.arr[stackNum]-3]
+    return res
+
+def isEmpty(self, stackNum):
+    """
+    :type stackNum: int
+    :rtype: bool
+    """
+    return self.arr[stackNum] < 6
+```
+
+### [03.02. Min Stack LCCI](https://leetcode-cn.com/problems/min-stack-lcci/)
+
+#### Having another stack to keep track of the minimal element
+
+```python
+def __init__(self):
+    """
+    initialize your data structure here.
+    """
+    self.stack = []
+    self.min_stack = []
+
+def push(self, x):
+    """
+    :type x: int
+    :rtype: None
+    """
+    if self.min_stack and self.min_stack[-1] < x:
+        self.min_stack.append(self.min_stack[-1])
+        self.stack.append(x)
+        return
+    self.stack.append(x)
+    self.min_stack.append(x)
+
+def pop(self):
+    """
+    :rtype: None
+    """
+    if len(self.min_stack) == 0:
+        return
+    self.min_stack.pop()
+    return self.stack.pop()
+
+def top(self):
+    """
+    :rtype: int
+    """
+    if len(self.min_stack) == 0:
+        return
+    return self.stack[-1]
+
+def getMin(self):
+    """
+    :rtype: int
+    """
+    return self.min_stack[-1]
+```
+The idea is keeping track of the extreme values:
+
+![alt](https://ch3302files.storage.live.com/y4mSDfx0su6DUE8JSHGcqSM-j0q1yzOnzMI64lEXgCjbI7jaubQLBwU8JkwTxj-RJd4M805w1A0WzUYNJkk9367g9CChm3PY8tZNrkr3x4kBGnNCb05YmmxJhhg0FskyBMuMz2zOIkCr1Me7H1u5PX4vGV2whEyd7lMCcFuU5Vd_Srj3sSR5dRZkYyT_ycWaZSk?width=419&height=299&cropmode=none)
+
+### [03.03. Stack of Plates LCCI](https://leetcode-cn.com/problems/stack-of-plates-lcci/)
+
+#### Two dimensions array
+The tricky part is some special boundary case.
+
+```python
+def __init__(self, cap):
+    """
+    :type cap: int
+    """
+    self.cap = cap
+    self.set = []
+
+def push(self, val):
+    """
+    :type val: int
+    :rtype: None
+    """
+    # 如果初始容量小于0 直接return
+    if self.cap <= 0:
+        return
+
+    if len(self.set) == 0 or len(self.set[-1]) >= self.cap:
+        # 当栈满了，或没有栈了，则新建一个栈
+        self.set.append([val])
+    else:
+        self.set[-1].append(val)
+
+def pop(self):
+    """
+    :rtype: int
+    """
+    if len(self.set) == 0:
+        return -1
+    res = self.set[-1].pop()
+    if len(self.set[-1]) == 0:
+        # 如果pop后栈为空，则删除该栈
+        self.set.pop()
+
+    return res
+
+def popAt(self, index):
+    """
+    :type index: int
+    :rtype: int
+    """
+    if len(self.set) <= index:
+        return -1
+    res = self.set[index].pop()
+    if len(self.set[index]) == 0:
+        # 如果pop后栈为空，则删除该栈
+        self.set.remove(self.set[index])
+    return res
+```
+
+### [面试题 03.04. Implement Queue using Stacks LCCI](https://leetcode-cn.com/problems/implement-queue-using-stacks-lcci/)
+
+#### Two stacks, A is for push, B is for pop
+
+push is doing A.push()
+
+pop is doing B.pop()
+
+Whenever B is empty, push all A to B. Don't have to switch upside down for every push and pop.
+
+```python
+def __init__(self):
+    """
+    Initialize your data structure here.
+    """
+
+    self.pushs = []
+    self.pops = []
+
+def push(self, x):
+    """
+    Push element x to the back of queue.
+    :type x: int
+    :rtype: None
+    """
+
+    self.pushs.append(x)
+
+def pop(self):
+    """
+    Removes the element from in front of queue and returns that element.
+    :rtype: int
+    """
+    if len(self.pops) == 0:
+        for i in range(len(self.pushs)):
+            self.pops.append(self.pushs.pop())
+    return self.pops.pop()
+
+
+def peek(self):
+    """
+    Get the front element.
+    :rtype: int
+    """
+    if len(self.pops) == 0:
+        for i in range(len(self.pushs)):
+            self.pops.append(self.pushs.pop())
+    temp = self.pops.pop()
+    self.pops.append(temp)
+    return temp
+
+
+def empty(self):
+    """
+    Returns whether the queue is empty.
+    :rtype: bool
+    """
+    if len(self.pushs)==0 and len(self.pops)==0:
+        return True
+    else:
+        return False
+```
+
