@@ -937,3 +937,242 @@ def empty(self):
         return False
 ```
 
+
+### [03.05. Sort of Stacks LCCI](https://leetcode-cn.com/problems/sort-of-stacks-lcci/)
+
+
+#### Like insertion sorting
+Whenever push a new element, find the first bigger element by popping to another assistant stack. then push back to the main stack.
+```python
+def __init__(self):
+    self.stack = []
+
+def push(self, val):
+    """
+    :type val: int
+    :rtype: None
+    """
+    if len(self.stack) == 0 or self.stack[-1] >= val:
+        self.stack.append(val)
+        return
+    else:
+        temp = []
+        while len(self.stack) != 0 and self.stack[-1] < val:
+            temp.append(self.stack.pop())
+
+        self.stack.append(val)
+
+        while temp:
+            self.stack.append(temp.pop())
+
+def pop(self):
+    """
+    :rtype: None
+    """
+    return self.stack.pop() if len(self.stack) != 0 else -1
+
+def peek(self):
+    """
+    :rtype: int
+    """
+    return self.stack[-1] if len(self.stack) != 0 else -1
+
+def isEmpty(self):
+    """
+    :rtype: bool
+    """
+    return len(self.stack) <= 0
+```
+
+#### Optimization
+
+Every time we push, we have to move some elements to temporary stack, then move them back. Some times we don't have to move them back right away.
+
+- If new element is bigger than main stack top, then pop main stack to temporary stack until find a bigger top, then push new element to main stack. At this time, we don't have to move temporary stack back.
+- If new element is smaller than main stack but bigger than temporary stack top, just push new element to temporary stack.
+- If new element is smaller than main stack top, and smaller than temporary stack top, then move temporary stack to main stack until find a top smaller than new element, push new element to temporary stack.
+
+Above way saves run time, but code become complex.
+
+
+### [03.06. Animal Shelter LCCI](https://leetcode-cn.com/problems/animal-shelter-lcci/)
+
+#### Two queue, one cat, one dog, compare the sequence number of the first elements of two queue, get oldest animal. If any queue is empty, try another one.
+
+```python
+def __init__(self):
+    self.a = [deque(), deque()]
+
+def enqueue(self, animal):
+    self.a[animal[1]].append(animal)
+
+def dequeueAny(self):
+    if self.a[0] and self.a[1]:
+    # 这里是一种三元操作符，第一个判断是真的话，返回or前面的值，假的话，返回or后面的直
+        return self.a[0][0][0] < self.a[1][0][0] and self.a[0].popleft() or self.a[1].popleft()
+    return self.a[0] and self.dequeueCat() or self.dequeueDog()
+
+def dequeueDog(self):
+    return self.a[1] and self.a[1].popleft() or [-1, -1]
+
+def dequeueCat(self):
+    return self.a[0] and self.a[0].popleft() or [-1, -1]
+```
+
+### [Route Between Nodes LCCI](https://leetcode-cn.com/problems/route-between-nodes-lcci/)
+
+#### BFS
+
+```python
+def findWhetherExistsPath(self, n, graph, start, target):
+    next_level = set()
+    next_level.add(start)
+    while len(next_level) != 0:
+        nexts = set()
+        for g in graph:
+            if g[0] in next_level:
+                if g[1] == target:
+                    return True
+                nexts.add(g[1])
+        next_level = nexts
+    return False
+```
+
+Note for next level, we are using a set, because we only want to check if the node is a node we want to check, so using a set improve the speed of checking. If we use a list, the time will exceed.
+
+
+### [04.02. Minimum Height Tree LCCI](https://leetcode-cn.com/problems/minimum-height-tree-lcci/)
+
+#### Recursion Binary search
+
+Because a binary search tree means root is bigger than left, smaller than right. Now we have a sorted array, if we do binary iterate, every time we use left side as left child, right side as right child, this satisfy the feature of binary tree. Furthermore, we want the tree balance, binary iterating will split the array almost equally, so the tree will be balanced.
+
+
+```python
+def sortedArrayToBST(self, nums: List[int]) -> TreeNode:
+    return self.buildTree(0, len(nums)-1, nums)
+
+def buildTree(self, start, end, nums):
+    if start > end:
+        return None
+    mid = (end - start+1) // 2 + start
+    root = TreeNode(nums[mid])
+    root.left = self.buildTree(start, mid-1, nums)
+    root.right = self.buildTree(mid+1, end, nums)
+    return root
+```
+
+Above can be more precise:
+```python
+def sortedArrayToBST(self, nums: List[in]) -> TreeNode:
+        if not nums:
+            return 
+        mid = len(nums) // 2
+        root = TreeNode(nums[mid])
+        root.left = self.sortedArrayToBST(nums[: mid])
+        root.right = self.sortedArrayToBST(nums[mid + 1: ])
+        
+        return root 
+```
+
+
+With minimal height means avoid null node before the last layer, this can be satisfied by binary search on sorted array.
+
+
+### [04.03. List of Depth LCCI](https://leetcode-cn.com/problems/list-of-depth-lcci/)
+
+### Similar to BFS
+Note the output is a node linked list, when we are layered iterating tree, we have to create linked list for each layer, and add its list head to the result list.
+
+```python
+def listOfDepth(self, tree: TreeNode) -> List[ListNode]:
+    next_layer = [tree]
+    res = []
+    layer_list = ListNode(-1)
+    layer_list.next = ListNode(tree.val)
+    while next_layer:
+        res.append(layer_list.next)
+        temp = []
+        layer_list = ListNode(-1)
+        cursor = layer_list
+        for node in next_layer:
+            if node.left:
+                temp.append(node.left)
+                cursor.next = ListNode(node.left.val)
+                cursor = cursor.next
+            if node.right:
+                temp.append(node.right)
+                cursor.next = ListNode(node.right.val)
+                cursor = cursor.next
+        next_layer = temp
+
+    return res
+```
+
+#### DFS
+When traverse the tree, we can define a level to record the level information.
+
+```python
+def listOfDepth(self, tree: TreeNode) -> List[ListNode]:
+    ans = []
+
+    def dfs(node, level):
+        if not node: return None
+        if len(ans) == level:
+            ans.append(ListNode(node.val))
+        else:
+            head = ListNode(node.val)
+            head.next = ans[level]
+            ans[level] = head
+        dfs(node.right, level + 1)
+        dfs(node.left, level + 1)
+
+    dfs(tree, 0)
+    return ans
+```
+
+### [04.04. Check Balance LCCI](https://leetcode-cn.com/problems/check-balance-lcci/)
+
+#### Get depth of each child, compare if the difference greater than 1
+
+```python
+def isBalanced(self, root: TreeNode) -> bool:
+    if not root:
+        return True
+
+    left_height = self.__getHeight(root.left, 0)
+    right_height = self.__getHeight(root.right, 0)
+    if abs(left_height - right_height) > 1:
+        return False
+    return self.isBalanced(root.left) and self.isBalanced(root.right)
+
+def __getHeight(self, root, height):
+    if not root:
+        return height
+    left_height = self.__getHeight(root.left, height+1)
+    right_height = self.__getHeight(root.right, height+1)
+
+    return max(left_height, right_height)
+```
+
+Above code can be more precise:
+
+```python
+# 计算以当前节点为根的树深度
+def __getHeight(self, root: TreeNode) -> int:
+    if root:
+        return 1 + max(self.__getHeight(root.left), self.__getHeight(root.right))
+    return 0
+
+
+def isBalanced(self, root: TreeNode) -> bool:
+    # 空树是平衡树
+    if not root:
+        return True
+    # 若左右子树深度超过1，非AVL
+    if abs(self.__getHeight(root.left) - self.__getHeight(root.right)) > 1:
+        return False
+    # 递归执行，当出现不满足AVL性质的子树时，执行短路运算立即返回结果
+    return self.isBalanced(root.left) and self.isBalanced(root.right)
+```
+
