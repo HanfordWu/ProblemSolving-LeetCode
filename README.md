@@ -1158,13 +1158,6 @@ def __getHeight(self, root, height):
 Above code can be more precise:
 
 ```python
-# 计算以当前节点为根的树深度
-def __getHeight(self, root: TreeNode) -> int:
-    if root:
-        return 1 + max(self.__getHeight(root.left), self.__getHeight(root.right))
-    return 0
-
-
 def isBalanced(self, root: TreeNode) -> bool:
     # 空树是平衡树
     if not root:
@@ -1174,5 +1167,164 @@ def isBalanced(self, root: TreeNode) -> bool:
         return False
     # 递归执行，当出现不满足AVL性质的子树时，执行短路运算立即返回结果
     return self.isBalanced(root.left) and self.isBalanced(root.right)
+
+# 计算以当前节点为根的树深度
+def __getHeight(self, root: TreeNode) -> int:
+    if root:
+        return 1 + max(self.__getHeight(root.left), self.__getHeight(root.right))
+    return 0
+
+```
+
+### [04.05. Legal Binary Search Tree LCCI](https://leetcode-cn.com/problems/legal-binary-search-tree-lcci/)
+
+#### In-order traversal with a global pre node (single thread)
+
+```python
+pre = None
+
+def isValidBST(self, root: TreeNode) -> bool:
+    if not root:
+        return True
+    l = self.isValidBST(root.left)
+
+    if self.pre and self.pre.val >= root.val:
+        return False
+    self.pre = root
+
+    r = self.isValidBST(root.right)
+
+    return l and r
+```
+
+#### Iteration traverse
+
+```python
+def isValidBST(self, root: TreeNode) -> bool:
+    stack = []
+    p = root
+    res = []
+
+    while p or stack :
+        while p:
+            stack.append(p)
+            p = p.left
+        
+        if stack :
+            node = stack.pop()
+            res.append(node.val)
+            p = node.right
+    
+    return res == sorted(set(res))
+```
+
+### [04.06. Successor LCCI](https://leetcode-cn.com/problems/successor-lcci/)
+
+#### Binary search
+Because it's a binary search tree, we are searching the next element greater than p.val
+
+If current value greater than p, we go to left tree of current, at the same time, we store current node(father node of next node).
+
+If current value smaller than p, we go to right tree of current.
+
+```python
+def inorderSuccessor(self, root: TreeNode, p: TreeNode) -> TreeNode:
+    res = None
+    cur = root
+    while cur:
+        if cur.val <= p.val:
+            cur = cur.right
+        else:
+            res = cur
+            cur = cur.left
+    return res
+```
+
+### [04.08. First Common Ancestor LCCI](https://leetcode-cn.com/problems/first-common-ancestor-lcci/)
+
+
+- If reach p or q, return the node to its parent
+- Get left and right child of current node.
+- If left is null, means all p and q are in right, right node is their first common parent
+- If right is null, means all p and q are in left, left node is their first common parent
+- If neither right nor left are null, means we found p and q in two side, current node is their first common parent.
+
+Note: The function only return the node p or q, Or the node that have p and q on left and right. So the returned node is the first common node, it cannot be override. There is only one node that p and q reside two sides of it.
+
+
+```python
+def lowestCommonAncestor(self, root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:
+    if not root or root.val == p.val or root.val == q.val:
+        return root
+
+    left = self.lowestCommonAncestor(root.left, p, q)
+    right = self.lowestCommonAncestor(root.right, p, q)
+    #如果left为空，说明这两个节点在cur结点的右子树上，我们只需要返回右子树查找的结果即可
+    if not left:
+        return right
+    #同上
+    if not right:
+        return left
+# 如果left和right都不为空，说明这两个节点一个在cur的左子树上一个在cur的右子树上，我们只需要返回cur结点即可。
+    return root
+```
+
+### [04.10. Check SubTree LCCI](https://leetcode-cn.com/problems/check-subtree-lcci/)
+
+#### Do pre-order and post-order with two trees
+If both pre-order and post-order contains the smaller tree, then smaller tree is subtree
+
+```python
+def checkSubTree(self, t1: TreeNode, t2: TreeNode) -> bool:
+
+    def preOder(t, t_pre_order):
+        if not t:
+            return t_pre_order
+        t_pre_order.append(t.val)
+        preOder(t.left, t_pre_order)
+
+        preOder(t.right, t_pre_order)
+        return t_pre_order
+
+    def postOder(t, t_post_order):
+        if not t:
+            return t_post_order
+        postOder(t.left, t_post_order)
+        postOder(t.right, t_post_order)
+        t_post_order.append(t.val)
+        return t_post_order
+
+    t1_pre_order = preOder(t1, [])
+    t2_pre_order = preOder(t2, [])
+    t1_post_order = postOder(t1, [])
+    t2_post_order = postOder(t2, [])
+
+    return ''.join([str(i) for i in t2_pre_order]) in ''.join([str(i) for i in t1_pre_order]) and ''.join(
+        [str(i) for i in t2_post_order]) in ''.join(str(i) for i in t1_post_order)
+```
+
+Above algorithm is slow
+
+#### Traverse t1, once find a same node the t2, start check both of them one node by node
+
+```python
+def checkSubTree(self, t1: TreeNode, t2: TreeNode) -> bool:
+    # If t1 t2 is None, return true, otherwise, return false.
+    # If t2 is none, t1 is not, it will be determine by isSame, return false
+    if not t1:
+        return t2 is None
+
+    return self.isSame(t1, t2) or self.checkSubTree(t1.left, t2) or self.checkSubTree(t1.right, t2)
+
+def isSame(self, root1, root2):
+    if not root1 and root2:
+        return True
+    if not (root1 and root2):
+        return False
+
+    if root1.val != root2.val:
+        return False
+
+    return self.isSame(root1.left, root2.left) and self.isSame(root1.right, root2.right)
 ```
 
