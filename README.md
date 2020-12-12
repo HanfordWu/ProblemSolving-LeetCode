@@ -1328,3 +1328,140 @@ def isSame(self, root1, root2):
     return self.isSame(root1.left, root2.left) and self.isSame(root1.right, root2.right)
 ```
 
+#### [04.12. Paths with Sum LCCI](https://leetcode-cn.com/problems/paths-with-sum-lcci/)
+
+#### Two layer traverse
+First layer traverse is normal traverse, for each node, do the second layer traverse, it is back tracking to calculate the sum.
+
+```python
+def __init__(self) -> None:
+    self.count = 0
+
+def pathSum(self, root: TreeNode, sum: int) -> int:
+
+    if not root:
+        return self.count
+
+    self.backTracking(root, 0, sum)
+
+    self.pathSum(root.left, sum)
+    self.pathSum(root.right, sum)
+
+    return self.count
+
+def backTracking(self, rot, temSum, sum):
+    if not rot:
+        return
+    temSum += rot.val
+    if temSum == sum:
+        self.count += 1
+    self.backTracking(rot.left, temSum, sum)
+    self.backTracking(rot.right, temSum, sum)
+    return
+```
+
+### [05.01. Insert Into Bits LCCI](https://leetcode-cn.com/problems/insert-into-bits-lcci/)
+
+#### Build the mask: from i = 1 to j=6: 1110000011
+
+##### 0001111111 - 0000000011, then revert to get 1110000011
+
+```python
+def insertBits(self, N: int, M: int, i: int, j: int) -> int:
+    if N <= M: return M
+    sum_i = 0
+    for t in range(i):
+        sum_i += 2 ** t
+    sum_j = 0
+    for t in range(j+1):
+        sum_j += 2 ** t
+    mask = ~(sum_j - sum_i)
+    return (N & mask) | (M << i)
+```
+
+##### (1<<(j-i+1))-1)<<i will get 0001111100
+```python
+mask=((1<<(j-i+1))-1)<<i;
+mask=~mask;
+N&=mask;
+M=M<<i;
+return M|N;
+```
+
+
+### [05.02. Binary Number to String LCCI](https://leetcode-cn.com/problems/bianry-number-to-string-lcci/)
+
+#### fraction * 2, get the int part, it's the bit
+
+If up to 31 bits cannot represent the fraction, means the fraction cannot be represent accurately.
+
+```python
+def printBin(self, num: float) -> str:
+    res, i = "0.", 31
+    while num > 0 and i:
+        num *= 2
+        if num >= 1:
+            res += '1'
+            num -= 1
+        else:
+            res += '0'
+        i -= 1
+    return res if not num else "ERROR"
+```
+
+Using counter i is faster than testing the length of result
+
+### [05.03. Reverse Bits LCCI](https://leetcode-cn.com/problems/reverse-bits-lcci/)
+
+#### Use 1<<i & num to check if the i bit is 1
+
+store previous number of 1 as pre, current number of 1 as cur
+
+compare current result to pre + cur, get the bigger.
+
+Finally we still should update result again
+
+```python
+def reverseBits(self, num: int) -> int:
+    pre = 0
+    cur = 0
+    res = 1
+    for i in range(32):
+        if num & (1 << i):
+            cur += 1
+        else:
+            res = max(res, pre + cur)
+            # plus 1 means the bit that we can flip
+            pre = cur + 1
+            cur = 0
+
+    return max(res, pre + cur)
+```
+
+### [05.04. Closed Number LCCI](https://leetcode-cn.com/problems/closed-number-lcci/)
+
+#### The most straightforward way
+
+Increase the num, count the number of '1', break the first number as next
+Decrease the num, count the number of '0', break the first number as pre
+
+```python
+def findClosedNumbers(self, num: int) -> List[int]:
+    res = [-1, -1]
+    n = bin(num).count('1')
+    nex = num + 1
+    while nex <= 2 ** 32 and bin(nex).count('1') != n:
+        nex += 1
+
+    if nex <= 2 ** 32:
+        res[0] = nex
+
+    pre = num - 1
+    while pre >= 0 and bin(pre).count('1') != n:
+        pre -= 1
+
+    if pre >= 0:
+        res[1] = pre
+
+    return res
+```
