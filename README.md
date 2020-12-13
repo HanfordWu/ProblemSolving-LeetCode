@@ -1465,3 +1465,60 @@ def findClosedNumbers(self, num: int) -> List[int]:
 
     return res
 ```
+
+
+### [05.06. Convert Integer LCCI](https://leetcode-cn.com/problems/convert-integer-lcci/)
+
+A XOR B, then count the number of '1'.
+Note in python, before XOR, we need number & 0xffffffff, because negative in python is two's complementary number.
+**First solution:**
+```python
+def convertInteger(self, A: int, B: int) -> int:
+        return bin((A & 0xffffffff) ^ (B & 0xffffffff)).count('1')
+```
+
+To count the number of '1', we can also use 
+```python
+res = 0
+c = A ^ B
+for i in range(32):
+    res += c >> i & 1
+```
+Because `c >> i & 1` will get the last digit of c.
+
+**So the second solution:**
+```python
+def convertInteger(self, A: int, B: int) -> int:
+    res = 0
+    c = A ^ B
+    for i in range(32):
+        res += c >> i & 1
+    return res
+```
+
+Note above solution didn't consider negative's two's complementary number, I don't know why it works for negative number.
+
+To count the number of '1', we can also clear the '1' one by one from right to left. To do this we need to do `C = C & (C - 1)` # 清除最低位 '1'.
+
+**Third solution:**
+```python
+def convertInteger(self, A: int, B: int) -> int:
+    C = (A & 0xffffffff) ^ (B & 0xffffffff)
+    cnt = 0
+    while C != 0: # 不断翻转最低位直到为 0
+        C = C & (C - 1) # 清除最低位
+        cnt += 1
+    return cnt
+```
+
+### [05.07. Exchange LCCI](https://leetcode-cn.com/problems/exchange-lcci/)
+
+#### number & '0x55555555' get odd bits, number & '0baaaaaaaa' get even bits, then shift, then or
+
+```python
+def exchangeBits(self, num: int) -> int:
+    odd = num & 0x55555555
+    even = num & 0xaaaaaaaa
+    return (odd << 1) | (even >> 1)
+```
+
