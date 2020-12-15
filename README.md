@@ -1547,3 +1547,146 @@ def drawLine(self, length: int, w: int, x1: int, x2: int, y: int) -> List[int]:
     return ans
 ```
 
+
+### [08.01. Three Steps Problem LCCI](https://leetcode-cn.com/problems/three-steps-problem-lcci/)
+
+
+Fibonacci Sequence, Dynamic programming.
+
+At n stair, I have three way to here, from n-1, n-2, n-3, so the total ways coming n is Ways(n-1) + Ways(n-2) + Ways(n-3). We can get the value one by one from ways(1) = 1, ways(2) = 2, ways(3) = 4
+
+```python
+def waysToStep(self, n: int) -> int:
+
+    if n == 1:
+        return 1
+    if n == 2:
+        return 2
+    tmp1, tmp2, tmp3 = 1, 2, 4
+    for i in range(3, n):
+        tmp1, tmp2, tmp3 = tmp2, tmp3, tmp1 + tmp2 + tmp3
+        tmp1 = tmp1 % 1000000007
+        tmp2 = tmp2 % 1000000007
+        tmp3 = tmp3 % 1000000007
+    return tmp3
+```
+
+### [08.02. Robot in a Grid LCCI](https://leetcode-cn.com/problems/robot-in-a-grid-lcci/)
+
+#### We only need to find one path, so after go further, we put an obstacle to it, preventing next path go to it, this saves the further detection.
+
+```python
+def pathWithObstacles(self, obstacleGrid: List[List[int]]) -> List[List[int]]:
+    res = []
+    self.findPath(0, 0, obstacleGrid, res)
+    return res
+
+def findPath(self, x, y, grid, res):
+    # If exceed downside, return false
+    if x >= len(grid):
+        return False
+    # if exceed rightside, return false
+    if y >= len(grid[0]):
+        return False
+
+    # if there is an obstacle, return false
+    if grid[x][y] == 1:
+        return False
+
+    # the blank is eligible
+    res.append([x, y])
+
+    # In order to improve the speed, after explore one blank, put an obstacle in it, prevent next path explore it.
+    grid[x][y] = 1
+    # if reached the destination, return true
+    if x == len(grid) - 1 and y == len(grid[0]) - 1:
+        return True
+
+    # If right or down side can go, the current blank return True
+    if self.findPath(x, y + 1, grid, res) or self.findPath(x + 1, y, grid, res):
+        return True
+    # If both right and downside are not passable, return false
+    res.remove(res[-1])
+
+    return False
+```
+We can also put an obstacle after detecting that right and down are both not passable.
+
+Another trick of above program is, if `self.findPath(x, y + 1, grid, res)` return true, we don't need go `self.findPath(x + 1, y, grid, res)`, shortcut of `or`, improving the speed of the program.
+
+
+Precise solution:
+```python
+def pathWithObstacles(self, obstacleGrid: List[List[int]]) -> List[List[int]]:
+    ans, r, c = [], len(obstacleGrid), len(obstacleGrid[0])
+    def f(path):
+        if not ans:
+            i, j = path[-1]
+            if not obstacleGrid[i][j]:
+                obstacleGrid[i][j] = 1
+                i < r - 1 and f(path + [[i + 1, j]])
+                j < c - 1 and f(path + [[i, j + 1]])
+                if (i, j) == (r - 1, c - 1):
+                    ans.extend(path)
+    f([[0, 0]])
+    return ans
+```
+
+### [08.03. Magic Index LCCI](https://leetcode-cn.com/problems/magic-index-lcci/)
+
+#### The first question is, if a sequence is strictly increasing, find the element that equal to index.
+
+The idea of this is, binary search:
+
+![alt](https://i.imgur.com/qutJiLB.png)
+
+There is only one or none crossing between elements and y = x, except the starting point.
+
+```python
+def findMagicIndex(self, nums: List[int]) -> int:
+
+    return self.binarySearch(0, len(nums) - 1, nums)
+
+def binarySearch(self, start, end, list):
+    if start >= end:
+        return -1
+    mid = (start + end) // 2
+
+    if list[mid] == mid:
+        return mid
+
+    if list[mid] > mid:
+        return self.binarySearch(start, mid, list)
+
+    else:
+        return self.binarySearch(mid+1, end, list)
+```
+
+#### If the elements are not strictly increasing:
+
+![alt](https://i.imgur.com/UIZMEOU.png)
+
+There might be multiple crossing points, so there is no rules to search. But the question require the minimum index, so we can improve the time by finding left first, then go to right. --剪枝
+
+```python
+def findMagicIndex(self, nums: List[int]) -> int:
+
+    return self.binarySearch(0, len(nums) - 1, nums)
+
+def binarySearch(self, start, end, list):
+    if start > end:
+        return -1
+# take right mid
+    mid = (start + end + 1) // 2
+    # first, check left
+    left = self.binarySearch(start, mid - 1, list)
+
+    if left != -1:
+        return left
+# second, check middle
+    if list[mid] == mid:
+        return mid
+# last, check right
+    return self.binarySearch(mid + 1, end, list)
+```
+
