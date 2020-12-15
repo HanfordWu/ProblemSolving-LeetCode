@@ -1522,3 +1522,28 @@ def exchangeBits(self, num: int) -> int:
     return (odd << 1) | (even >> 1)
 ```
 
+### [05.08. Draw Line LCCI](https://leetcode-cn.com/problems/draw-line-lcci/)
+
+Here is a trick, how to make a mask:
+
+`(1 << m1) - 1`, 1 shift m1 bits, then minus 1 we get m1-1 bits 1 on the right: `00000....1111111`
+
+```python
+def drawLine(self, length: int, w: int, x1: int, x2: int, y: int) -> List[int]:
+    #
+    ans = [0] * length
+    wid = w // 32
+    n1, m1 = divmod(x1, 32)
+    n2, m2 = divmod(x2, 32)
+    # 将起始点和终止点之间对应的比特位置为-1
+    for i in range(wid * y + n1, wid * y + n2 + 1):
+        ans[i] = -1
+    # 如果x1不是32的整数倍，再用一个mask来与对应的数相与
+    if m1:
+        ans[wid * y + n1] &= (1 << (32 - m1)) - 1
+    # 终点所在的数与mask异或
+    ans[wid * y + n2] ^= (1 << (31 - m2)) - 1
+
+    return ans
+```
+
