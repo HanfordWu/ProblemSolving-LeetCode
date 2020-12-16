@@ -1690,3 +1690,100 @@ def binarySearch(self, start, end, list):
     return self.binarySearch(mid + 1, end, list)
 ```
 
+### [08.04. Power Set LCCI](https://leetcode-cn.com/problems/power-set-lcci/)
+
+#### Non-Recursion
+For example, [1,2,3]
+Step1: Add an empty list
+Step2: Visit 1, add 1 to all list of last step: [], [1]
+Step3: Visit 2, add 2 to all list of last step: [], [1], [2], [1,2]
+Step4: Visit 3, add 3 to all list of last step: [], [1], [2], [1,2], [3], [1,3],[2,3],[1,2,3]
+Done
+
+```python
+def subsets(self, nums: List[int]) -> List[List[int]]:
+    res = [[]]
+
+    for num in nums:
+        mid_temp = []
+        for i in range(len(res)):
+            # don't use the original i
+            temp = res[i].copy()
+            temp.append(num)
+            res.append(temp)
+
+    return res
+```
+
+#### Recursion
+
+We can transform iteration to recursion, we can use tail recursion.
+
+```python
+def subsets(self, nums: List[int]) -> List[List[int]]:
+    res = [[]]
+    self.recursion(0, nums, res)
+
+    return res
+
+def recursion(self, i, list, res):
+    if i >= len(list):
+        return
+
+    for t in range(len(res)):
+        temp = res[t].copy()
+        temp.append(list[i])
+        res.append(temp)
+
+    self.recursion(i + 1, list, res)
+```
+
+#### Back tracking
+
+The idea of back tracking is going further to do something, then come back(redo) to do something else.
+
+```python
+private void backtrack("原始参数") {
+    //终止条件(递归必须要有终止条件)
+    if ("终止条件") {
+        //一些逻辑操作（可有可无，视情况而定）
+        return;
+    }
+
+    for (int i = "for循环开始的参数"; i < "for循环结束的参数"; i++) {
+        //一些逻辑操作（可有可无，视情况而定）
+
+        //做出选择
+
+        //递归
+        backtrack("新的参数");
+        //一些逻辑操作（可有可无，视情况而定）
+
+        //撤销选择
+    }
+}
+```
+
+In the current case:
+```python
+def subsets(self, nums: List[int]) -> List[List[int]]:
+    res = []
+
+    self.backTracking(0, nums, res, [])
+
+    return res
+
+def backTracking(self, start, list, res, temp):
+    # Here we don't need a terminate condition because the for loop will terminate finally
+    # we append all path of temp, note we use the copy of the original list
+    res.append(temp.copy())
+
+    # iterate the elements we are going to add
+
+    for i in range(start, len(list)):
+        temp.append(list[i])
+    # we go further to explore more elements and path
+        self.backTracking(i+1, list, res, temp)
+    # after iterating current element, we move on to the next element, so we pop previous element.
+        temp.pop()
+```
