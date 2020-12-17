@@ -1787,3 +1787,184 @@ def backTracking(self, start, list, res, temp):
     # after iterating current element, we move on to the next element, so we pop previous element.
         temp.pop()
 ```
+
+
+#### Bit operation
+
+If we want the subset of the set, every element has two choice, take or not take, therefor finally we will have `2^n` subsets.
+
+We can use n bits to represent the `take or not take` status, for example, `001` for `[1,2,3]` means only take the last element `3`. 
+
+So how do we get all the combination of bits? we can start from `000`, then increase by 1, to `111`. We will take the elements according to the bit.
+
+```python
+def subsets(self, nums: List[int]) -> List[List[int]]:
+    total = 2 ** len(nums)
+    res = []
+
+    for i in range(total):
+        temp = []
+        for j in range(len(nums)):
+            if (i >> j) & 1:
+                temp.append(nums[j])
+        res.append(temp)
+    return res
+```
+
+### [08.05. Recursive Mulitply LCCI](https://leetcode-cn.com/problems/recursive-mulitply-lcci/)
+
+if A is even:
+A * B = A//2 * B * 2 = A//2 * B + A//2 * B
+
+if A is Odd
+A * B = A//2 * B + A//2 * B + B
+
+A//2 * B is the recursion part.
+
+```python
+def multiply(self, A: int, B: int) -> int:
+    if A == 0:
+        return 0
+
+    p = self.multiply(A >> 1, B)
+
+    if A & 1:
+        return p + p + B
+
+    return p + p
+```
+
+
+#### Non-recursion
+
+Basically, we use B as weight, then count the `1` bits of A, add together:
+
+```python
+def multiply(self, A: int, B: int) -> int:
+    res = 0
+    while A != 0:
+        # check if the last bit is 1
+        if A & 1:
+            res += B
+        # A // 2
+        A = A >> 1
+        # B * 2
+        B = B << 1
+    return res
+```
+
+### [08.06. Hanota LCCI](https://leetcode-cn.com/problems/hanota-lcci/)
+
+```python
+def hanota(self, A: List[int], B: List[int], C: List[int]) -> None:
+    """
+    Do not return anything, modify C in-place instead.
+    """
+    n = len(A)
+# Move n elements from A to C via B
+    self.move(n, A, B, C)
+
+def move(self, n, A, B, C):
+
+    if n == 0:
+        return
+    # move n-1 elements from A to B via C 
+    self.move(n-1, A, C, B)
+    # Move A top to C
+    C.append(A.pop())
+    # move n-1 elements from B to C via A
+    self.move(n-1, B, A, C)
+```
+
+### [Permutation I LCCI](https://leetcode-cn.com/problems/permutation-i-lcci/)
+
+#### Back Tracking
+The difference from the power set is, power set don't count back, so it don't count same characters with different sequence. But Permutation count same characters with difference sequence, hence it count back. Here we don't go back mathematically, but we check if `c in temp`.
+
+```python
+def permutation(self, S: str) -> List[str]:
+    res = []
+    temp1 = ''
+
+    def backTracking(temp, S):
+        for i in S:
+            if i not in temp:
+                temp = temp + i
+                if len(temp) == len(S):
+                    res.append(temp)
+                    break
+                backTracking(temp, S)
+                temp = temp[:-1]
+
+    backTracking(temp1, S)
+    return res
+```
+
+
+### [08.08. Permutation II LCCI](https://leetcode-cn.com/problems/permutation-ii-lcci/)
+
+Last question, we are checking if i already in temp, that's because there is no duplicate in S. We can also remove the checked character, then don't have to check if i already in temp. This way can also solve this question, and with a set to remove duplicated result.
+
+```python
+def permutation(self, S: str) -> List[str]:
+# using a set to remove duplicated results
+    res = set()
+    temp1 = ''
+
+    def backTracking(temp, S, n):
+        for i in S:
+            temp = temp + i
+            if len(temp) == n:
+                res.add(temp)
+                break
+            # S.replace(i, '', 1) can remove already checked character i
+            backTracking(temp, S.replace(i, '', 1), n)
+            temp = temp[:-1]
+
+    backTracking(temp1, S, len(S))
+    return list(res)
+```
+For back tracking, we would better move stop condition to the beginning.
+
+```python
+def permutation(self, S: str) -> List[str]:
+    res = set()
+    temp1 = ''
+
+    def backTracking(temp, S, n):
+        if len(temp) == n:
+            res.add(temp)
+            return
+        for i in S:
+            temp = temp + i
+            backTracking(temp, S.replace(i, '', 1), n)
+            temp = temp[:-1]
+
+    backTracking(temp1, S, len(S))
+    return list(res)
+```
+
+#### The idea of non-duplicated result is, for every recursion layer, we don't take sam character more than once.
+So we can have a `visited` to exclude the characters that we already take. In this way, we don't need the set to remove duplication.
+
+```python
+def permutation(self, S: str) -> List[str]:
+    res = []
+    temp1 = ''
+
+    def backTracking(temp, S, n):
+        if len(temp) == n:
+            res.append(temp)
+            return
+        visited = ''
+        for i in S:
+        # if current i is duplicated with previous i, we skip it.
+            if i in visited:
+                continue
+            visited += i
+            temp = temp + i
+            backTracking(temp, S.replace(i, '', 1), n)
+            temp = temp[:-1]
+    backTracking(temp1, S, len(S))
+    return res
+```
