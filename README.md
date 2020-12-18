@@ -1742,14 +1742,14 @@ def recursion(self, i, list, res):
 
 The idea of back tracking is going further to do something, then come back(redo) to do something else.
 
-```python
+```java
 private void backtrack("原始参数") {
     //终止条件(递归必须要有终止条件)
     if ("终止条件") {
         //一些逻辑操作（可有可无，视情况而定）
         return;
     }
-
+// 尝试所有选择，在尝试下一个选择的时候， 撤销前一个选择
     for (int i = "for循环开始的参数"; i < "for循环结束的参数"; i++) {
         //一些逻辑操作（可有可无，视情况而定）
 
@@ -1968,3 +1968,69 @@ def permutation(self, S: str) -> List[str]:
     backTracking(temp1, S, len(S))
     return res
 ```
+
+
+### [08.09. Bracket LCCI](https://leetcode-cn.com/problems/bracket-lcci/)
+
+#### Back tracking
+
+We are growing a string, every time we can only select '(' or ')', and the number of ')' cannot be more than '(', finally the number of '(' or ')' should be n.
+
+```python
+def generateParenthesis(self, n: int) -> List[str]:
+    res = []
+    temp1 = ''
+    backTrack(temp1, n, n)
+
+
+def backTrack(temp, n1, n2):
+    # if n1 > n2, means ')' is already more than '(', it's illegal
+    if n1 > n2:
+        return
+    # if n1 = n2 = 0, means '(' and ')' are used up, and they are equal
+    if n2 == 0 and n1 == 0:
+        res.append(temp)
+        return
+
+    # Now we have two choice, we are going to try both
+    if n1 > 0:
+        backTrack(temp + '(', n1 - 1, n2)
+    # Here implies temp = temp[:-1], but because we didn't change temp in last step, so we don't need to do it.
+    if n2 > 0:
+        backTrack(temp + ')', n1, n2 - 1)
+```
+
+
+### [08.10. Color Fill LCCI](https://leetcode-cn.com/problems/color-fill-lcci/)
+
+```python
+def floodFill(self, image: List[List[int]], sr: int, sc: int, newColor: int) -> List[List[int]]:
+
+    old_color = image[sr][sc]
+    # If new color == old color, we don't do anything, otherwise it will stack overflow
+    if newColor == old_color:
+        return image
+
+    self.paint(image, sr, sc, newColor, old_color)
+
+    return image
+
+def paint(self, image, sr, sc, new_color, old_color):
+    # If out of bounds, return
+    if not (0 <= sr < len(image) and 0 <= sr < len(image[0])):
+        return
+
+    # if current square is not connected, return
+    if image[sr][sc] != old_color:
+        return
+    # now it's connected, so paint to new color
+    image[sr][sc] = new_color
+
+    # Go to four directions. Here is actually back tacking
+    self.paint(image, sr + 1, sc, new_color, old_color)
+    self.paint(image, sr - 1, sc, new_color, old_color)
+    self.paint(image, sr, sc + 1, new_color, old_color)
+    self.paint(image, sr, sc - 1, new_color, old_color)
+```
+
+
