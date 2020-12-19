@@ -2034,3 +2034,224 @@ def paint(self, image, sr, sc, new_color, old_color):
 ```
 
 
+### [08.11. Coin LCCI](https://leetcode-cn.com/problems/coin-lcci/)
+
+It is [Knapsack problem](https://en.wikipedia.org/wiki/Knapsack_problem), specifically, complete Knapsack problem, means we can repeat each options.
+
+First, the below is the solution of 08.11.
+
+```python
+def waysToChange(self, n: int) -> int:
+    coins = [1, 5, 10, 25]
+    dp = [0] * (n + 1)
+
+    dp[0] = 1
+
+    for coin in coins:
+        for j in range(coin, n + 1):
+            dp[j] = (dp[j] + dp[j - coin]) % 1000000007
+
+    return dp[n]
+```
+
+Next, let's talk about **Knapsack problem**.
+
+#### 01 Knapsack problem
+
+We have items with volume:[v1, v2, v3...], weights: [w1, w2, w3...], we have a pack with volume V, So how do we put items into the pack, so that the total weights is the most.
+
+Let's say volumes: [2,3,5,7]
+weights: [2,5,2,5]
+
+
+1. Create a table, columns are different volume in total, rows are, we are considering if put the item of the row.
+
+![alt](https://www.cxyxiaowu.com/wp-content/uploads/2020/01/1578358554-743d3ac8f244969.jpg)
+
+The first row 0 to 10 means volume that we used start from 0 to 10. column means the items we collected.
+
+For example, the number of table[i][j] means with the volume j, the most weight that we can put items i, i-1..., 1. 
+
+![alt](https://www.cxyxiaowu.com/wp-content/uploads/2020/01/1578358554-df551a9439c0cb7.jpg)
+
+For example, table[7][3] = 7, that is, with items [2,3,5], volumes[2,5,2] and total volume 7, the most weight we can put is 7, that is items[3,5] with volumes[2,5]. We have other choice, for example, items[2,5] with volumes[2,2], the total volume will hold [2,2], but obviously its weight is less than [2,5].
+
+So how do we get the most weight?
+The answer is step by step.
+
+- Only consider put item 1, the first row, table[0][0] means with volume 0, we cannot put anything, so the most weight is 0.
+- table[0][1], volume 1 cannot hold item 1, so the most weight is still 0.
+- table[0][2], volume 2 can hold item 1, so the most weight is 2...
+- table[1][3], we are considering whether put item 2, the volume is 3, if we take item 2, the rest volume is 3 - 3 = 0, means no more space for another item, and the weight will be 5. If we don't take item 2, the weight remains 2, obvious it's less, so we take item 2. So table[1][3] = 5.
+- table[2][10], we are considering when volume is 10, whether put item 3 or not. If we put item 3, so the rest of the volume is 10 - 3 = 7, and the most of weight on volume = 7 is table[i-1][7] = 7, plus weight of item 2, so it will be 7 + 2 = 9, more than table[i-1][10], so table[2][10] = 9.
+
+The formula is:
+
+```python
+dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - C[i]] + W[i])
+```
+
+The implementation of 01 Knapsack solution is:
+```java
+public int zeroOnePack(int V, int[] C, int[] W) { 
+    // 防止无效输入
+    if ((V <= 0) || (C.length != W.length)) {
+        return 0;
+    }
+
+    int n = C.length;
+
+    // dp[i][j]: 对于下标为 0～i 的物品，背包容量为 j 时的最大价值
+    int[][] dp = new int[n + 1][V + 1];
+
+    // 背包空的情况下，价值为 0
+    dp[0][0] = 0;
+
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= V; ++j) {
+            if (j >= C[i - 1]) {
+                dp[i][j] = Math.max(dp[i-1][j], dp[i - 1][j - C[i - 1]] + W[i - 1]);
+            }
+        }
+    }
+    // 返回，对于所有物品（0～N），背包容量为 V 时的最大价值
+    return dp[n][V];
+}
+```
+If C is sorted by ascending, we can iterate columns from C[i-1]:
+
+```java
+public int zeroOnePack(int V, int[] C, int[] W) { 
+    // 防止无效输入
+    if ((V <= 0) || (C.length != W.length)) {
+        return 0;
+    }
+
+    int n = C.length;
+
+    // dp[i][j]: 对于下标为 0～i 的物品，背包容量为 j 时的最大价值
+    int[][] dp = new int[n + 1][V + 1];
+
+    // 背包空的情况下，价值为 0
+    dp[0][0] = 0;
+
+    for (int i = 1; i <= n; ++i) {
+        for (int j = C[i]; j <= V; ++j) {
+            dp[i][j] = Math.max(dp[i-1][j], dp[i - 1][j - C[i - 1]] + W[i - 1]);
+        }
+    }
+    // 返回，对于所有物品（0～N），背包容量为 V 时的最大价值
+    return dp[n][V];
+```
+
+#### Saving spaces
+
+From the table, we see dp[i][j] relies on previous row and columns.
+We get [i][j] from [i-1][j - w] and [i-1][j]. If we only want to get the final row, we can have only one row data, and update it row by row, no need a matrix.
+
+However, we must update the row from right to left. Just because we want to use the current row as previous row, we cannot change the value that we need for current cell.
+For example:
+row 1: 1,2,3,4,5,6,7,8,9
+now we are getting row 2 from row 1, for example, we update row2[9], we need row1[9] and row1[5], we cannot change row1[5] before we update row2[9], so we cannot update row2 from left to right, but from right to left.
+
+```java
+public int zeroOnePack(int V, int[] C, int[] W) { 
+    // 防止无效输入
+    if ((V <= 0) || (C.length != W.length)) {
+        return 0;
+    }
+
+    int n = C.length;
+
+    // dp[i][j]: 对于下标为 0～i 的物品，背包容量为 j 时的最大价值
+    int[] dp = new int[n + 1];
+
+    // 背包空的情况下，价值为 0
+    dp[0] = 0;
+
+    for (int i = 1; i <= n; ++i) {
+        for (int j = V; j >= C[i]; j--) {
+            dp[j] = Math.max(dp[j], dp[j - C[i]] + W[i]);
+        }
+    }
+```
+
+#### Complete Knapsack problem
+
+For 01 Knapsack problem, every item, we can only take once.
+
+Complete Knapsack problem is, we have a pack with volume V, we have items: [v1, v2, v3...], with weight[w1, w2, w3...], we can take every item infinite times.
+
+It's kind of trade off, if item with same volume but different weight, we absolutely will take the higher weight one.
+
+For complete Knapsack problem, we are getting table[i][j] from table[i-1][j] and table[i][j - vi], instead of table[i-1][j-vi].
+
+To save space, we are still using an array, and because we don't need table[i-1][j-vi], we should iterate from left to right(in the second loop).
+
+```python
+public int completePackOpt(int V, int[] C, int[] W) {
+    if (V == 0 || C.length != W.length) {
+        return 0;
+    }
+
+    int n = C.length;
+    int[] dp = new int[V + 1];
+    for (int i = 0; i < n; ++i) {
+        for (int j = C[i]; j <= V; ++j) {
+            dp[j] = Math.max(dp[j], dp[j - C[i]] + W[i]);
+        }
+    }
+    return dp[V];
+}
+```
+
+For [322. Coin Change](https://leetcode-cn.com/problems/coin-change/), we are trying to use least coin to get the amount, so we treat each coin's weight as 1, value as it's worth, and finally we want the least weight.
+
+So the starting point dp[0] = 0, amount 0 has 0 coins. then the rest of the table should be set Integer.MAX_VALUE, and comparing with function `min()`
+
+```java
+public int coinChange(int[] coins, int amount) {
+    int[] dp = new int[amount + 1];
+
+    Arrays.fill(dp, Integer.MAX_VALUE);
+
+    dp[0] = 0;
+
+    for (int i = 0; i < coins.length; ++i) {
+        for (int j = coins[i]; j <= amount; ++j) {
+            if (dp[j - coins[i]] != Integer.MAX_VALUE) {
+                dp[j] = Math.min(dp[j - coins[i]] + 1, dp[j]);
+            }
+        }
+    }
+    return dp[amount] == Integer.MAX_VALUE ? -1 : dp[amount];
+}
+```
+
+[Reference](https://www.cxyxiaowu.com/7895.html)
+
+### [10.01. Sorted Merge LCCI](https://leetcode-cn.com/problems/sorted-merge-lcci/)
+
+```python
+def merge(self, A: List[int], m: int, B: List[int], n: int) -> None:
+
+    i, j = 0, 0
+
+    while j < n and i < m:
+    # If B[i] < A[i], swap
+        if A[i] > B[j]:
+            A[i], B[j] = B[j], A[i]
+            k = j
+            # After swap, try to bubble up the swapped element to right
+            while (k + 1) < n and B[k] > B[k + 1]:
+                B[k], B[k + 1] = B[k + 1], B[k]
+                k += 1
+        i += 1
+
+    # After swap, append B to A
+    i = m
+    while i < m + n:
+        A[i] = B[i - m]
+        i += 1
+```
+
