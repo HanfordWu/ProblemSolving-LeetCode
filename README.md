@@ -2255,3 +2255,173 @@ def merge(self, A: List[int], m: int, B: List[int], n: int) -> None:
         i += 1
 ```
 
+
+### [10.01. Sorted Merge LCCI](https://leetcode-cn.com/problems/sorted-merge-lcci/)
+
+Previously, if merge two sorted array, we create another array, then scan A and B, put them to the third array.
+
+Now we have to merge A and B to bigger array, A. We cannot scan from left to right, because the if A[i] is bigger, it will be override. So we should scan A and B from right to left, and put them to the empty part of A.
+
+```python
+def merge(self, A: List[int], m: int, B: List[int], n: int) -> None:
+    """
+    Do not return anything, modify A in-place instead.
+    """
+    i = m + n - 1
+    while m > 0 and n > 0:
+        if A[m - 1] > B[n - 1]:
+            A[i] = A[m - 1]
+            m -= 1
+        else:
+            A[i] = B[n - 1]
+            n -= 1
+        i -= 1
+
+    while m > 0:
+        A[i] = A[m - 1]
+        m -= 1
+        i -= 1
+
+    while n > 0:
+        A[i] = B[n - 1]
+        n -= 1
+        i -= 1
+```
+
+
+### [10.02. Group Anagrams LCCI](https://leetcode-cn.com/problems/group-anagrams-lcci/)
+
+```java
+public List<List<String>> groupAnagrams(String[] strs) {
+
+    List<List<String>> res = new ArrayList<>();
+    OuterLoop:
+    for (String str : strs) {
+        for (List<String> re : res) {
+            if (checkAnagram(re.get(0), str)) {
+                re.add(str);
+                continue OuterLoop;
+            }
+        }
+//      if not retrun in the loop, means we don't find a group
+//      for str, therefore we create a new one
+        res.add(new ArrayList<>().add(str));
+    }
+    return res;
+}
+
+/**
+    * using an array to check if two string are anagrams
+    * @param s1
+    * @param s2
+    * @return
+    */
+private boolean checkAnagram(String s1,
+                                String s2) {
+    if (s1.length() != s2.length()) {
+        return false;
+    }
+    int[] dic = new int[128];
+
+    for (int i = 0; i < s1.length(); i++) {
+        dic[s1.charAt(i)]++;
+    }
+
+    for (int i = 0; i < s2.length(); i++) {
+        dic[s2.charAt(i)]--;
+    }
+
+    for (int i : dic) {
+        if (i != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+We can also sort each string, so that anagrams have same string, then use a hash map to store each group.
+
+```java
+ public List<List<String>> groupAnagrams(String[] strs) {
+        List<List<String>> res=new ArrayList<>();
+    Map<String,List<String>> map=new HashMap<>();
+    for(String s:strs)
+    {
+        char[] t=s.toCharArray();
+        Arrays.sort(t);
+        String string=String.valueOf(t);//将字符串全部化为按字典序排列，排序后相同的即为变位词
+        if(!map.containsKey(string))
+            map.put(string,new ArrayList<>());
+        map.get(string).add(s);
+    }
+        res.addAll(map.values());
+    return res;
+    }
+```
+
+
+### [10.03. Search Rotate Array LCCI](https://leetcode-cn.com/problems/search-rotate-array-lcci/)
+
+```java
+public int search(int[] arr,
+                      int target) {
+    int start = 0;
+
+    int end = arr.length;
+
+// this is the special case, [5,5,1,2,3,4,5], 5. Because in this case, we cannot split correctly, so we treat it as a special case.
+    if (arr[0] == arr[arr.length - 1] && target == arr[0]) {
+        return 0;
+    }
+    // Find the split point, get the offset
+    while (start < end) {
+        int mid = (start + end) / 2;
+        if (start == mid) {
+            start++;
+            break;
+        }
+        if (arr[mid] <= arr[start]) {
+            end = mid;
+        } else {
+            start = mid;
+        }
+
+    }
+
+    int offset = start;
+
+    return binarySearch(arr, 0, arr.length - 1, offset, target);
+    
+}
+
+/**
+* do normal binary search, note the elements may be duplicated, we want the match with the smallest index. So every time we <=, we go left to continue. And, we are using an offset, because the array is rotated. We search it as a normal ascending array, but we access element via offset.
+*/
+
+private int binarySearch(int[] arr,
+                            int start,
+                            int end,
+                            int offset,
+                            int target) {
+
+    if (arr[(start + offset) % arr.length] == target) {
+        return (start + offset) % arr.length;
+    }
+    if (start >= end) {
+        return -1;
+    }
+
+    int mid = (start + end) / 2;
+
+    int midLength = (mid + offset) % arr.length;
+
+    if (target > arr[midLength]) {
+        return binarySearch(arr, mid + 1, end, offset, target);
+    } else {
+        // smaller or equal, we will go left to searche
+        return binarySearch(arr, start, mid, offset, target);
+    }
+}
+```
+
