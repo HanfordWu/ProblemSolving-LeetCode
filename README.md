@@ -2425,3 +2425,160 @@ private int binarySearch(int[] arr,
 }
 ```
 
+### [10.05. Sparse Array Search LCCI](https://leetcode-cn.com/problems/sparse-array-search-lcci/)
+
+Still binary search, but because the mid may be empty string, so if it is empty string, we move start to right one position, check again, until we find a mid that is not empty string, then compare.
+
+```java
+public int findString(String[] words,
+                          String s) {
+    int left = 0, right = words.length;
+    while(left < right){
+        int mid = left + (right - left) / 2;
+        if(words[mid].equals("") && !words[left].equals(s)){
+            left++;
+            continue;
+        }else if(words[left].equals(s)){
+            return left;
+        }
+
+        if(words[mid].equals(s)){
+            return mid;
+            //mid在s后面
+        }else if(words[mid].compareTo(s) > 0){
+            right = mid;
+            //mid在s前面
+        }else if(words[mid].compareTo(s) < 0){
+            left = mid + 1;
+        }
+    }
+    return -1;
+}
+```
+
+### [10.09. Sorted Matrix Search LCCI](https://leetcode-cn.com/problems/sorted-matrix-search-lcci/)
+
+
+```
+[
+  [1,   4,  7, 11, 15],
+  [2,   5,  8, 12, 19],
+  [3,   6,  9, 16, 22],
+  [10, 13, 14, 17, 24],
+  [18, 21, 23, 26, 30]
+]
+```
+Look at the feature of the matrix, for [x][y], all [row <= x][col <= y] are smaller than [x][y], all [row >= x][col >= y] are greater than [x][y]. 
+
+We want to start from one point, scan over the whole matrix, to find the target. If we start from [0][0] or [n][n], we don't know where to go for next step, because all rest elements are greater or smaller than [x][y].
+
+If we start from [0][n], if current > target, we go up, if current < target, we go right. if current == target, return true.
+
+If we start from [n][0], if current > target, we go left, if current < target, we go down. if current == target, return true.
+
+We won't miss any row and colum, because every time it's either greater or smaller, finally we will find the target row and column.
+
+```java
+public boolean searchMatrix(int[][] matrix, int target) {
+    int col = 0;
+    int row = matrix.length - 1;
+
+    while(row >= 0 && col< matrix[0].length){
+        if (matrix[row][col] < target){
+            col++;
+        }else if (matrix[row][col] > target){
+            row--;
+        }else {
+            return true;
+        }
+    }
+    return false;
+```
+
+### [10.10. Rank from Stream LCCI](https://leetcode-cn.com/problems/rank-from-stream-lcci/)
+
+
+#### Brutal
+
+```java
+private static final int CPACITY = 500001;
+
+int[] arr = new int[CPACITY];
+
+
+public StreamRank() {
+
+}
+
+public void track(int x) {
+    arr[x]++;
+}
+
+public int getRankOfNumber(int x) {
+    int sum = 0;
+    for (int i = 0; i <= x; i++) {
+        sum += arr[i];
+    }
+    return sum;
+}
+```
+
+#### Binary Indexed Tree (Fenwick Tree)
+
+Like a snowball, every elements is the sum of previous elements,
+Original Array:
+A = [1,1,0,0,0,2,1,0,0,3,0..] to represent the number of the number (index) appeared.
+
+Now we wanna know how many smallers appeared, so we wanna store the sum of previous elements.
+We create another array C.
+
+C[1] = A[1];
+C[2] = A[1] + A[2];
+C[3] = A[3];
+C[4] = A[1] + A[2] + A[3] + A[4];
+C[5] = A[5];
+C[6] = A[5] + A[6];
+C[7] = A[7];
+C[8] = A[1] + A[2] + A[3] + A[4] + A[5] + A[6] + A[7] + A[8];
+
+So `SUMi = C[i] + C[i-2k1] + C[(i - 2k1) - 2k2] + .....;`
+
+And if we want to update one element, we need to update all elements that are using it.
+
+For example, if we wanna add A[1]++ , we must update C[1]++, C[2]++, C[4]++, C[8]++...
+
+How do we know the indexes that we should update?
+
+2 = 1+1
+4 = 2+2
+8 = 4+4
+
+i_next = i + i&(-i)
+
+
+```java
+private static final int CAPACITY = 500001;
+
+int[] arr = new int[CAPACITY];
+
+
+public StreamRank() {
+
+}
+
+public void track(int x) {
+    x++;
+    for (int i = x; i <= CAPACITY; i+= i &(-i)) {
+        arr[i]++;
+    }
+}
+
+public int getRankOfNumber(int x) {
+    x++;
+    int sum = 0;
+    for (int i = x; i > 0 ; i-=i&(-i)) {
+        sum+=arr[i];
+    }
+    return sum;
+}
+```
