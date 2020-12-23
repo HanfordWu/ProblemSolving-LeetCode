@@ -2582,3 +2582,138 @@ public int getRankOfNumber(int x) {
     return sum;
 }
 ```
+### [10.11. Peaks and Valleys LCCI](https://leetcode-cn.com/problems/peaks-and-valleys-lcci/)
+
+```java
+public void wiggleSort(int[] nums) {
+
+    Integer[] boxed = new Integer[nums.length];
+// in order to sort, we convert int array to integer array.
+    for (int i = 0; i < nums.length; i++) {
+        boxed[i] = nums[i];
+    }
+
+    Arrays.sort(boxed, new Comparator<Integer>() {
+        @Override
+        public int compare(Integer integer,
+                            Integer t1) {
+            return t1.compareTo(integer);
+        }
+    });
+// convert integer array back to int array
+    for (int i = 0; i < boxed.length; i++) {
+        nums[i] = boxed[i];
+    }
+//  swap every two elements, start from index 1
+    for (int i = 1; i < nums.length-1; i+=2) {
+        int temp = nums[i];
+        nums[i] = nums[i+1];
+        nums[i+1] = temp;
+    }
+}
+```
+
+#### Swap neighbor
+
+We want something like `[peak > valley < peak > valley < peak....]` Note the even index we need it greater than last one, odd index we need it smaller than last one.
+
+If we get odd peak2 and it's `[peak1 > valley > peak2]`, because peak1 > peak2, we can just swap valley with peak2, so `[peak1 > valley2 < peak']` 
+
+If we get even valley2 and it's `[valley1 < peak < valley2]`, because valley1 < valley2, we can just swap valley2 with peak, so `[valley1 < peak2 > valley']`.
+
+```java
+public void wiggleSort(int[] nums) {
+    for (int i = 1; i < nums.length; i++) {
+        if ((i&1) == 1 && nums[i] > nums[i-1]){
+            int temp = nums[i];
+            nums[i] = nums[i-1];
+            nums[i-1] = temp;
+        }
+        if (((i&1) == 0) && nums[i] < nums[i-1]){
+            int temp = nums[i];
+            nums[i] = nums[i-1];
+            nums[i-1] = temp;
+        }
+    }
+}
+```
+### [16.01. Swap Numbers LCCI](https://leetcode-cn.com/problems/swap-numbers-lcci/)
+
+#### Using exclusive or
+
+Making use of `A ^ B = C`, then `C ^ A = B` or `C ^ B = A`. That is, C contains information of both A and B. We can use C with A to get B, or use C with B to get A.
+
+```java
+public int[] swapNumbers(int[] numbers) {
+    numbers[0]^=numbers[1];
+    numbers[1]^=numbers[0];
+    numbers[0]^=numbers[1];
+    return numbers;
+}
+```
+
+`numbers[0] = numbers[0] ^ numbers[1]`
+
+Now we have the original information of 0 and 1. (C)
+
+With C and numbers[1], we can get numbers[0]
+
+With C and numbers[0], we can get numbers[1], assign it back to numbers[0]
+
+[Reference](http://lijinma.com/blog/2014/05/29/amazing-xor/)
+
+### [16.02. Words Frequency LCCI](https://leetcode-cn.com/problems/words-frequency-lcci/)
+
+```java
+private Map<String, Integer> frequency = new HashMap();
+public WordsFrequency(String[] book) {
+    for (String s : book) {
+        frequency.put(s, frequency.getOrDefault(s, 0) + 1);
+    }
+}
+
+public int get(String word) {
+    return frequency.getOrDefault(word, 0);
+}
+```
+
+### [16.04. Tic-Tac-Toe LCCI](https://leetcode-cn.com/problems/tic-tac-toe-lcci/)
+
+#### Using char plus to check rows, columns, and cross
+
+```java
+public String tictactoe(String[] board) {
+    int n = board.length;   // 说明是n*n的井字格
+    int xTotal = 0;
+    int yTotal = 0;
+    int left = 0;  // 左上到右下的斜线
+    int right = 0; // 右上到坐下的斜线
+// Flag to determine draw or pending at the end
+    boolean haveBlank = false;
+// Check rows and columns
+    for (int i = 0; i < n; i++) {
+        // 表示第 i 行； 表示第 i 列。  两种理解。
+        xTotal = 0;
+        yTotal = 0;
+        for (int j = 0; j < n; j++) {
+            // 如果理解为第 i 行。
+            xTotal += board[i].charAt(j);
+            if (board[i].charAt(j) == ' ') haveBlank = true;
+            // 如果理解为第i列
+            yTotal += board[j].charAt(i);
+        }
+        if (xTotal == (int) 'X' * n || yTotal == (int) 'X' * n) return "X";
+        if (xTotal == (int) 'O' * n || yTotal == (int) 'O' * n) return "O";
+
+        left += board[i].charAt(i);
+        right += board[i].charAt(n - 1 - i);
+    }
+// Check two cross, if their sum is n * X or O
+    if (left == (int) 'X' * n || right == (int) 'X' * n) return "X";
+    if (left == (int) 'O' * n || right == (int) 'O' * n) return "O";
+
+    if (haveBlank) return "Pending";
+    else return "Draw";
+}
+```
+
