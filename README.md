@@ -2717,3 +2717,23 @@ public String tictactoe(String[] board) {
 }
 ```
 
+### [16.05. Factorial Zeros LCCI](https://leetcode-cn.com/problems/factorial-zeros-lcci/)
+
+Factorial is `1*2*3*4*5*6*...`, equal to `1*2*3*2*2*5*2*3*...`, whenever the result has a 0 at tail, means there is `2*5` appear, and because the number of 2 is always more than number of 5, so the number of 5 is the number of 0 at the tail. So the question becomes to how many `5` in the Prime factors of the factorial. So one factorial is `1*2*3*4*5...*n`, till n, how many 5s? Whenever the `n` increase every 5, there is one more 5. So, the number of `5` in the Prime factors of the factorial is
+```java
+while(n != 0){
+    number += n/5;
+    n/=5;
+}
+```
+So:
+```java
+public int trailingZeroes(int n) {
+    int m5=0;
+    while(n>0){
+        n/=5;
+        m5+= n;
+    }
+    return m5;
+}
+```
