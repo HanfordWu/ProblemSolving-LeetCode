@@ -2737,3 +2737,33 @@ public int trailingZeroes(int n) {
     return m5;
 }
 ```
+
+
+### [16.06. Smallest Difference LCCI](https://leetcode-cn.com/problems/smallest-difference-lcci/)
+
+##### Sort them first, two pointers, move the smaller one to forward.
+
+```java
+public int smallestDifference(int[] a, int[] b) {
+    Arrays.sort(a);
+    Arrays.sort(b);
+    int i = 0, j  = 0;
+    int distance = - Math.abs(a[0] - b[0]);
+    while (i < a.length && j < b.length){
+        // here is using max, and negative abs, because if use min and positive abs, the distance can be out of range. (the problem of  Math.abs(Integer.MIN_VALUE) = -2147483648)
+        distance = Math.max(distance, -Math.abs(a[i] - b[j]));
+        // improve the speed once the distance get 0
+        if (distance == 0) return 0;
+        if (a[i] < b[j]){
+            i++;
+            // improve the speed, skipping the smaller ones till the last smaller, we need to record that last smaller distance.
+            while ((i+1) < a.length && a[i+1] < b[j]) i++;
+
+        }else {
+            j++;
+            while ((j+1) < b.length && a[i] > b[j+1]) j++;
+        }
+    }
+    return -distance;
+}
+```
