@@ -2767,3 +2767,20 @@ public int smallestDifference(int[] a, int[] b) {
     return -distance;
 }
 ```
+
+### [16.07. Maximum LCCI
+](https://leetcode-cn.com/problems/maximum-lcci/)
+
+let diff = a - b, if diff's sign bit is 1, means a < b, otherwise a > b. But in order to avoid a - b bit overflow, (it's possible, because for integer, the value range is -21......48 to + 21.......47, if a = -21......48, b = 1, a - b will be overflow), we use long to store the difference.
+
+Finally, negatives >> 63 is -1 (shift with sign), positives >> 63 is 0, therefore, the final result is (diffSign bit + 1) * a - (diffSign bit * b).
+
+```java
+public int maximum(int a, int b) {
+    long c = a;
+    long d = b;
+    long diff = c - d;
+    long diffSign = diff >> 63;
+    return (int)((diffPrime+1) * a - diffPrime *b);
+}
+```
