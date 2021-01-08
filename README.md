@@ -2784,3 +2784,38 @@ public int maximum(int a, int b) {
     return (int)((diffPrime+1) * a - diffPrime *b);
 }
 ```
+
+### [16.10. Living People LCCI](https://leetcode-cn.com/problems/living-people-lcci/)
+
+#### Sort, then two indexes
+
+```java
+public int maxAliveYear(int[] birth, int[] death) {
+    int ans = -1;
+    int num = 0;//record the number of people
+    int max = num;//record the maximum of number
+    int i=0, j = 0;//index of birth and death
+    Arrays.sort(birth);
+    Arrays.sort(death);
+//        loop througth every year
+    for (int year = 1900; year <= 2000; year++){
+        //if current year exist in birth year, num++, i++;
+        while (i < birth.length && year == birth[i]){
+            num++;
+            i++;
+        }
+        //after counting the number of birth, we compare the number of people,
+        //if it's more than previous, we store the max number and year
+        if (num > max){
+            max = num;
+            ans = year;
+        }
+        //count the number of death
+        while (j < death.length && year == death[j]){
+            num--;
+            j++;
+        }
+    }
+    return ans;
+}
+```
