@@ -2819,3 +2819,46 @@ public int maxAliveYear(int[] birth, int[] death) {
     return ans;
 }
 ```
+
+#### No sorting, using an array to record the number of people of each year
+```java
+public int maxAliveYear(int[] birth, int[] death) {
+    // use an array to store each year birth and death
+    int[] changes = new int[102];
+    int len = birth.length, res = 1900, max_alive = 0, cur_alive = 0;
+    for (int i = 0; i < len; ++i) {
+        ++changes[birth[i] - 1900];
+        --changes[death[i] - 1899];//because the people died in year x, he is counted alive in year x. But he is died in x+1 year.
+    }
+
+    // find the max.
+    for (int i = 1; i < 101; ++i) {
+        cur_alive += changes[i];
+        if (cur_alive > max_alive) {
+            max_alive = cur_alive;
+            res = 1900 + i;
+        }
+    }
+    return res;
+}
+```
+
+### [16.11. Diving Board LCCI](https://leetcode-cn.com/problems/diving-board-lcci/)
+
+It's a very simple question, now we have two number, we are going to add k times, how many sum we can have? It's just k shorter, k-1 longer.... so on and so forth.
+
+```java
+public int[] divingBoard(int shorter, int longer, int k) {
+    if (k == 0) return new int[0];
+    if (shorter == longer) return new int[]{k * shorter};
+    int[] ans = new int[k+1];
+    for (int i = 0; i < k+1; i++) {
+        ans[i] = longer * i + (k-i)*shorter;
+    }
+    return ans;
+}
+```
+
+we can also think about recursion, but because every iteration we add both shorter and longer, there are many duplication, we should remove those duplication.
+
+For this problem, recursion will be over time.
