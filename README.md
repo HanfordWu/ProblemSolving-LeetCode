@@ -2862,3 +2862,81 @@ public int[] divingBoard(int shorter, int longer, int k) {
 we can also think about recursion, but because every iteration we add both shorter and longer, there are many duplication, we should remove those duplication.
 
 For this problem, recursion will be over time.
+
+
+### [16.13. Bisect Squares LCCI](https://leetcode-cn.com/problems/bisect-squares-lcci/)
+
+The line cut two square evenly must across their center. So the line will be known.
+
+To get the intersection of the line with squares, must check the slope of the line, if the slope > -1 and slope < 1, the intersections are with vertical edge. otherwise the intersections are with horizontal edges.
+
+```java
+public double[] cutSquares(int[] square1, int[] square2) {
+    double[] center1 = new double[]{(square1[0] + (double)square1[2]/2), (square1[1] + (double)square1[2]/2)};
+    double[] center2 = new double[]{(square2[0] + (double)square2[2]/2), (square2[1] + (double)square2[2]/2)};
+    if (center1[0] == center2[0]){
+        double uppery1 = square1[1] + square1[2];
+        double uppery2 = square2[1] + square2[2];
+        return new double[]{center1[0], Math.min(square1[1], square2[1]), center2[0], Math.max(uppery1, uppery2)};
+    }
+
+    double a = (center1[1] - center2[1])/(center1[0] - center2[0]);
+    double b = center1[1] - a * center1[0];
+
+    if (a >= -1 && a <= 1){
+        double[] ans = new double[4];
+        ans[0] = Math.min(square1[0], square2[0]);
+        ans[1] = a * ans[0] + b;
+        ans[2] = Math.max(square1[0]+square1[2], square2[0]+square2[2]);
+        ans[3] = a * ans[2] + b;
+        return ans;
+    }
+    double[] ansP = new double[4];
+    ansP[3] = Math.min(square1[1], square2[1]);
+    ansP[1] = Math.max(square1[1] + square1[2], square2[1]+square2[2]);
+    ansP[0] = (ansP[1] - b)/a;
+    ansP[2] = (ansP[3] - b)/a;
+
+    if (ansP[0]> ansP[2]){
+        double x1 = ansP[0];
+        double y1 = ansP[1];
+        ansP[0]=ansP[2];
+        ansP[1]=ansP[3];
+        ansP[2]=x1;
+        ansP[3]=y1;
+    }
+    return ansP;
+}
+```
+
+
+### [16.15. Master Mind LCCI](https://leetcode-cn.com/problems/master-mind-lcci/)
+
+```java
+public int[] masterMind(String solution, String guess) {
+    StringBuilder sb = new StringBuilder();
+    StringBuilder sb2 = new StringBuilder();
+    int[] ans = new int[2];
+    for (int i = 0; i < 4; i++) {
+        if (solution.charAt(i) == guess.charAt(i)){
+            ans[0]++;
+        }else {
+            sb.append(solution.charAt(i));
+            sb2.append(guess.charAt(i));
+        }
+    }
+
+    int[] chars = new int[128];
+    for (int i = 0; i < sb.length(); i++) {
+        chars[sb.charAt(i)]++;
+    }
+
+    for (int i = 0; i < sb2.length(); i++) {
+        if (chars[sb2.charAt(i)] > 0){
+            ans[1]++;
+            chars[sb2.charAt(i)]--;
+        }
+    }
+    return ans;
+}
+```
