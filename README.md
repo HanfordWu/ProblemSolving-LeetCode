@@ -2940,3 +2940,45 @@ public int[] masterMind(String solution, String guess) {
     return ans;
 }
 ```
+
+
+### [16.16. Sub Sort LCCI](https://leetcode-cn.com/problems/sub-sort-lcci/)
+
+#### Find the minimum from right, maximum from left, then find their correct position.
+
+```java
+public int[] subSort(int[] array) {
+    if(array == null || array.length == 0 || array.length == 1) return new int[]{-1,-1};
+    int m = 0 , n = array.length - 1;
+    //注意：数组中的数可能为负数
+    int min = Integer.MAX_VALUE , max = Integer.MIN_VALUE;
+    //max为乱序的最大值，min为乱序的最小值
+    for(int i = 0 ; i < array.length ; i++){
+        if(max <= array[i]){
+            max = array[i];
+        }else{
+            //记录乱序数组小于最大值的最大索引
+            m = i;
+        }
+    }
+    for(int j = array.length - 1 ; j >= 0 ; j--){
+        if(min >= array[j]){
+            min = array[j];
+        }else{
+            //记录乱序数组大于最大值的最小索引
+            n = j;
+        }
+    }
+    return m > n ? new int[]{n,m} : new int[]{-1,-1};
+}
+```
+
+Example: [1,2,4,7,10,11,7,12,6,7,16,18,19], the expected output: [3,9].
+
+From right to left, we store the minimum, because if it's ascending, the minimum should greater or equal than current element, if not, means the minimum should go left, until we find a correct position for minimum.
+
+On the right of index 3, the minimum is 6, 6 < current 7, so 6 should be on the left of 7, but 1,2,4 are all smaller than 6, therefore, the left index is 3.
+
+The same thing for right index.
+
+
