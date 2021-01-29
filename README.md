@@ -2982,3 +2982,31 @@ On the right of index 3, the minimum is 6, 6 < current 7, so 6 should be on the 
 The same thing for right index.
 
 
+### [16.17. Contiguous Sequence LCCI](https://leetcode-cn.com/problems/contiguous-sequence-lcci/)
+
+Brutal approach:
+
+```java
+public int maxSubArray(int[] nums) {
+    int max = Integer.MIN_VALUE;
+    for (int i = 0; i < nums.length; i++) {
+
+        int temMax = Integer.MIN_VALUE;
+        int sum = 0;
+        for (int i1 = i; i1 < nums.length; i1++) {
+            sum = sum + nums[i1];
+
+            if (sum > temMax){
+                temMax = sum;
+            }
+        }
+
+        if (temMax > max){
+            max = temMax;
+        }
+    }
+    return max;
+}
+```
+
+Need better solution...
