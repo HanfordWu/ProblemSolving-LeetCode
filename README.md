@@ -3035,26 +3035,80 @@ public int[] pondSizes(int[][] land) {
         Arrays.sort(ansP);
         return ansP;
     }
-    private int pond(int[][] land, int i, int j, Set<Integer> visited){
+private int pond(int[][] land, int i, int j, Set<Integer> visited){
 //      if indexes are over boundary, we return 0
-        if (i < 0 || j < 0 || i >= land.length || j >= land[0].length) return 0;
+    if (i < 0 || j < 0 || i >= land.length || j >= land[0].length) return 0;
 //      in order to track visited element, we give each element an unique index
-        int index = i * land[0].length + j;
+    int index = i * land[0].length + j;
 //      if visted, we don't count again
-        if (visited.contains(index)) return 0;
-        visited.add(index);
+    if (visited.contains(index)) return 0;
+    visited.add(index);
 //      if current != 0, means it's a boundary
-        if (land[i][j] != 0) return 0;
+    if (land[i][j] != 0) return 0;
 //      we go through all the direction of current 0 element
-        int la = this.pond(land, i-1, j-1, visited);
-        int ll = this.pond(land, i, j-1, visited);
-        int lb = this.pond(land, i+1, j-1, visited);
-        int ma = this.pond(land, i-1, j, visited);
-        int mb = this.pond(land, i+1, j, visited);
-        int ra = this.pond(land, i-1, j+1, visited);
-        int rr = this.pond(land, i, j+1, visited);
-        int rb = this.pond(land, i+1, j+1, visited);
+    int la = this.pond(land, i-1, j-1, visited);
+    int ll = this.pond(land, i, j-1, visited);
+    int lb = this.pond(land, i+1, j-1, visited);
+    int ma = this.pond(land, i-1, j, visited);
+    int mb = this.pond(land, i+1, j, visited);
+    int ra = this.pond(land, i-1, j+1, visited);
+    int rr = this.pond(land, i, j+1, visited);
+    int rb = this.pond(land, i+1, j+1, visited);
 //      we add all neighbors together and current self: 1
-        return la+ll+lb+ma+mb+ra+rr+rb+1;
+    return la+ll+lb+ma+mb+ra+rr+rb+1;
+}
+```
+
+Above solution is kind of DFS, for each element, we detect all its neighbor(start from left above), if current element is not 0 or it's visited, we return 0.
+
+we can also think of BFS, for each element, apply DFS. DFS can also find all possible connected 0.
+
+BFS:
+```java
+public int[] pondSizes(int[][] land) {
+        int columns = land[0].length;
+        int rows = land.length;
+        List<Integer> ans = new ArrayList<>();
+        Set<Integer> visited = new HashSet<>();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                List<int[]> layer = new ArrayList<>();
+                int[] first = new int[2];
+                first[0] = i; first[1] = j;
+                layer.add(first);
+                int count = pond(land, visited, layer);
+                if (count != 0){
+                    ans.add(count);
+                }
+            }
+        }
+        int[] ansP = ans.stream().mapToInt(i -> i).toArray();
+        Arrays.sort(ansP);
+        return ansP;
     }
+private int pond(int[][] land, Set<Integer> visited, List<int[]> layer){
+    if (layer.size() == 0) return 0;
+
+    int sum = 0;
+    List<int[]> nextLayer = new ArrayList<>();
+
+    for (int[] ints : layer) {
+        int i = ints[0], j = ints[1];
+        if (i < 0 || j < 0 || i >= land.length || j >= land[0].length) continue;
+        int index = i * land[0].length + j;
+        if (visited.contains(index)) continue;
+        visited.add(index);
+        if (land[i][j] != 0) continue;
+        nextLayer.add(new int[]{i-1, j-1});
+        nextLayer.add(new int[]{i, j-1});
+        nextLayer.add(new int[]{i+1, j-1});
+        nextLayer.add(new int[]{i-1, j});
+        nextLayer.add(new int[]{i+1, j});
+        nextLayer.add(new int[]{i-1, j+1});
+        nextLayer.add(new int[]{i, j+1});
+        nextLayer.add(new int[]{i+1, j+1});
+        sum = sum + 1;
+    }
+    return this.pond(land, visited, nextLayer) + sum;
+}
 ```
