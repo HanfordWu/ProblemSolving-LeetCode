@@ -3112,3 +3112,38 @@ private int pond(int[][] land, Set<Integer> visited, List<int[]> layer){
     return this.pond(land, visited, nextLayer) + sum;
 }
 ```
+
+### [16.20. T9 LCCI](https://leetcode-cn.com/problems/t9-lcci/)
+
+```java
+public List<String> getValidT9Words(String num,
+                                        String[] words) {
+        Map<Character, String> dic = new HashMap<>();
+        dic.put('2', "abc");
+        dic.put('3', "def");
+        dic.put('4', "ghi");
+        dic.put('5', "jkl");
+        dic.put('6', "mno");
+        dic.put('7', "pqrs");
+        dic.put('8', "tuv");
+        dic.put('9', "wxyz");
+
+        List<String> ans = new ArrayList<>();
+// iterate words
+        for (String word : words) {
+            int i = 0;
+//            for each words, we check character and the coresponding number, if the number contains the character
+            for (; i < word.length(); i++) {
+                if (!dic.get(num.charAt(i)).contains(String.valueOf(word.charAt(i)))){
+//                    if not contain, we break directly
+                    break;
+                }
+            }
+//            check if all character is contained by number, if yes, add it to the answer list
+            if (i == word.length()){
+                ans.add(word);
+            }
+        }
+        return ans;
+    }
+```
