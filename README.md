@@ -3010,3 +3010,51 @@ public int maxSubArray(int[] nums) {
 ```
 
 Need better solution...
+
+
+
+### [16.19. Pond Sizes LCCI](https://leetcode-cn.com/problems/pond-sizes-lcci/)
+
+```java
+public int[] pondSizes(int[][] land) {
+        int columns = land[0].length;
+        int rows = land.length;
+        List<Integer> ans = new ArrayList<>();
+        Set<Integer> visited = new HashSet<>();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                int count = pond(land, i, j, visited);
+//              if current element count == 0, means either it's been visited or it's not 0
+//              if count != 0, means we find a pond
+                if (count != 0){
+                    ans.add(count);
+                }
+            }
+        }
+        int[] ansP = ans.stream().mapToInt(i -> i).toArray();
+        Arrays.sort(ansP);
+        return ansP;
+    }
+    private int pond(int[][] land, int i, int j, Set<Integer> visited){
+//      if indexes are over boundary, we return 0
+        if (i < 0 || j < 0 || i >= land.length || j >= land[0].length) return 0;
+//      in order to track visited element, we give each element an unique index
+        int index = i * land[0].length + j;
+//      if visted, we don't count again
+        if (visited.contains(index)) return 0;
+        visited.add(index);
+//      if current != 0, means it's a boundary
+        if (land[i][j] != 0) return 0;
+//      we go through all the direction of current 0 element
+        int la = this.pond(land, i-1, j-1, visited);
+        int ll = this.pond(land, i, j-1, visited);
+        int lb = this.pond(land, i+1, j-1, visited);
+        int ma = this.pond(land, i-1, j, visited);
+        int mb = this.pond(land, i+1, j, visited);
+        int ra = this.pond(land, i-1, j+1, visited);
+        int rr = this.pond(land, i, j+1, visited);
+        int rb = this.pond(land, i+1, j+1, visited);
+//      we add all neighbors together and current self: 1
+        return la+ll+lb+ma+mb+ra+rr+rb+1;
+    }
+```
