@@ -3777,3 +3777,75 @@ class Solution {
     }
 }
 ```
+
+
+### [17.11. Find Closest LCCI](https://leetcode-cn.com/problems/find-closest-lcci/)
+
+
+#### Hash table, then two pointers to find the nearest distance of two arrays.
+
+```java
+class Solution {
+    public int findClosest(String[] words, String word1, String word2) {
+        Map<String, List<Integer>> dic = new HashMap<>();
+
+        for (int i = 0; i < words.length; i++) {
+            if (dic.containsKey(words[i])){
+                dic.get(words[i]).add(i);
+            }else {
+                List<Integer> l = new ArrayList<>();
+                l.add(i);
+                dic.put(words[i], l);
+            }
+        }
+        List<Integer> integers1 = dic.get(word1);
+        List<Integer> integers2 = dic.get(word2);
+
+        int size1 = integers1.size();
+        int size2 = integers2.size();
+
+        int p1 = 0, p2 = 0;
+        int res = Integer.MAX_VALUE;
+
+        while (p1 < size1 && p2 < size2){
+            res = Math.min(res, Math.abs(integers1.get(p1) - integers2.get(p2)));
+            if (integers1.get(p1) < integers2.get(p2)){
+                p1++;
+            }else {
+                p2++;
+            }
+        }
+        return res;
+    }
+}
+```
+
+#### Two pointer solution
+
+pointer1 search word1, pointer2 search word2, whenever find a word1 or word2, we calculate pointer1 - pointer2, get the minimum of the distance.
+
+```java
+class Solution {
+    public int findClosest(String[] words, String word1, String word2) {
+        int pointer1 = -1, pointer2 = -1;
+        int dis = Integer.MAX_VALUE;
+        for (int i = 0; i < words.length; i++) {
+            if (words[i].equals(word1)){
+                pointer1 = i;
+            }
+            if (words[i].equals(word2)){
+                pointer2 = i;
+            }
+            if ( pointer1 != -1 && pointer2 != -1){
+                dis = Math.min(dis, Math.abs(pointer1-pointer2));
+            }
+        }
+
+        return dis;
+    }
+}
+```
+
+If we are going to query many times on same string, we would better use method 1, a Hashtable.
+
+
