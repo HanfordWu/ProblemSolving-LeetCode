@@ -3726,3 +3726,54 @@ class Solution {
     }
 }
 ```
+
+### [17.10. Find Majority Element LCCI](https://leetcode-cn.com/problems/find-majority-element-lcci/)
+
+Require to be O(n) and space O(1)
+
+#### Sort and verification
+Sort the array, get the middle element, but we need double check if it's the majority.
+This method takes at least nlog(n).
+
+#### Moore voting
+
+In an array, if we find two elements are different, we discard them. Finally, the left element might be the majority.
+
+If an element is majority, the worst case is, its elements are dismissed by all other elements, but because it's majority, it will remain.
+
+That is being said, many countries are in a war, if we say one vs one, finally, the most people country will win. The worst case is, all other country fight with the majority country, but majority country will still remain finally. Most case is, there are fights between other countries. The majority country doesn't lose the most people.
+
+We use a count to represent the number of remained people.
+- iterate the array, if count == 0, means so far no people remained, we assign current element as majority, count++.
+- If count != 0, and if current element != majority, means there will be a fight, so count--. if current element == majority, means we are meeting a same element, we put it to the remained, so count++;
+- After iteration, the majority will be remained. But we need to verify it. If it actually not a majority, means no majority. return -1.
+
+
+
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        int count = 0;
+        int major  = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (count == 0){
+                major = nums[i];
+                count++;
+            }else {
+                if (major != nums[i]){
+                    count--;
+                }else {
+                    count++;
+                }
+
+            }
+        }
+        int c = 0;
+        for (int num : nums) {
+            if (num==temp)  c++;
+        }
+        if (c>nums.length/2) return temp;
+        return -1;
+    }
+}
+```
