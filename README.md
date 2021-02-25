@@ -3698,3 +3698,31 @@ class Solution {
     }
 }
 ```
+
+
+### [17.09. Get Kth Magic Number LCCI](https://leetcode-cn.com/problems/get-kth-magic-number-lcci/)
+
+1,3,5,7,9,15,21....
+
+
+All elements are products of 3, 5, 7, so we form an array with those three factors in ascending order.
+
+- Set three pointers, they start from index 1. On pointer3, the elements only times 3, on pointer5, the elements only times 5, on pointer7, the elements only times 7.
+- Compare three pointer products, take the minimum one. If we take pointer3 * 3, then pointer3++, if take pointer5 * 5, pointer5++, if take pointer7 * 7, then pointer7++;
+
+```java
+class Solution {
+    public int getKthMagicNumber(int k) {
+        int p3 = 0, p5 = 0, p7 = 0;
+        int[] arr = new int[k];
+        arr[0] = 1;
+        for (int i = 1; i < k; i++) {
+            arr[i] = Math.min(arr[p3]*3, Math.min(arr[p5]*5, arr[p7]*7));
+            if (arr[i] == arr[p3] * 3) p3++;
+            if (arr[i] == arr[p5] * 5) p5++;
+            if (arr[i] == arr[p7] * 7) p7++;
+        }
+        return arr[k-1];
+    }
+}
+```
