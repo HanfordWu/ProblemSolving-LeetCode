@@ -3500,3 +3500,24 @@ private static int cal(int op1, int op2, char operator){
     return 0;
 }
 ```
+
+
+
+### [17.01 Add without plus](https://leetcode-cn.com/problems/add-without-plus-lcci/)
+
+- a ^ b is the sum of a and b without carry
+- (a & b) << 1 is the carry
+- we add a ^ b and the carry, to get the sum, note now, there might still a carry, so we need to check, until the carry is not 1 any more.
+
+```java
+public int add(int a, int b) {
+    while (b != 0){
+        int n = a ^ b;
+        b = (a & b) << 1;
+        a = n;
+    }
+
+    return a;
+}
+```
+
