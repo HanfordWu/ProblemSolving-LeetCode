@@ -3351,3 +3351,82 @@ public List<List<Integer>> pairSums(int[] nums, int target) {
     return ans;
 }
 ```
+
+
+### [16.25. LRU Cache LCCI](https://leetcode-cn.com/problems/lru-cache-lcci/)
+
+- cache is a hash map
+- Use a double linked hashmap to provide the order of the keys
+- The most recent used key can be the head, vice versa.
+- Implement own double linked list.
+
+```java
+class LRUCache {
+
+   /**
+    * 双向链表数据类型
+    */
+    static class Node{
+        int key,value;
+        Node prev,next;
+        public Node(int key,int value){
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    private Map<Integer,Node> map = new HashMap<>();
+    private Node head = new Node(-1,-1);
+    private Node tail = new Node(-1,-1);
+    private int k;
+
+    public LRUCache(int capacity) {
+        this.k = capacity;
+        head.next = tail;
+        tail.prev = head;
+    }
+    
+    public int get(int key) {
+        if(map.containsKey(key)){
+            Node node = map.get(key);
+            removeNode(node);
+            moveToHead(node);
+            return node.value;
+        }
+        return -1;
+    }
+    
+    public void put(int key, int value) {
+        if(get(key) > -1){
+            map.get(key).value = value;
+        }else{
+            if(map.size() == k){
+                int rk = tail.prev.key;
+                removeNode(tail.prev);
+                map.remove(rk);
+            }
+            Node node = new Node(key,value);
+            map.put(key,node);
+            moveToHead(node);
+        }
+    }
+
+    /**
+    * 移动节点到首位
+    */
+    public void moveToHead(Node node){
+        node.next = head.next;
+        head.next.prev = node;
+        head.next = node;
+        node.prev = head;
+    }
+
+    /**
+    * 删除节点
+    */
+    public void removeNode(Node node){
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+}
+```
