@@ -3314,3 +3314,40 @@ private class Position{
         return li;
     }
 ```
+
+
+### [16.24. Pairs With Sum LCCI](https://leetcode-cn.com/problems/pairs-with-sum-lcci/)
+
+- Sort array;
+- Two pointers, one from 0, another from end;
+- If curren two elements sum smaller than target, pointer1 increment, if bigger, pointer2 decrease, if equal, put elements into answer collection, pointer2 decrease and pointer1 increase at the same time.
+
+
+```java
+public List<List<Integer>> pairSums(int[] nums, int target) {
+
+    Arrays.sort(nums);
+
+    List<List<Integer>> ans = new ArrayList<>();
+
+    int pointer2 = nums.length-1;
+
+    int pointer1 = 0;
+
+    while (pointer1 < pointer2){
+        if (nums[pointer1] + nums[pointer2] == target){
+            List<Integer> li = new ArrayList<>();
+            li.add(nums[pointer1]);
+            li.add(nums[pointer2]);
+            ans.add(li);
+            pointer1++;
+            pointer2--;
+        }else if (nums[pointer1] + nums[pointer2] > target){
+            pointer2--;
+        }else {
+            pointer1++;
+        }
+    }
+    return ans;
+}
+```
