@@ -3147,3 +3147,46 @@ public List<String> getValidT9Words(String num,
         return ans;
     }
 ```
+
+### [16.21. Sum Swap LCCI](https://leetcode-cn.com/problems/sum-swap-lcci/)
+
+
+- Find the difference of two sum;
+- sort two arrays;
+- two pointers, our goal is to find array1[pointer1] - array2[pointer2] * 2 == difference (because after swap, the sums difference = 2 * elements differences) 
+- if current element diff * 2 == sum difference, return;
+- if current element diff * 2 < sum difference, move pointer1 forward;
+- if current element diff * 2 > sum difference, move pointer2 forward;
+
+
+```java
+public int[] findSwapValues(int[] array1, int[] array2) {
+    int sum1 = IntStream.of(array1).sum();
+    int sum2 = IntStream.of(array2).sum();
+
+    int difference = sum1 - sum2;
+
+    int[] array1_copy = array1.clone();
+
+    int[] array2_copy = array2.clone();
+
+    Arrays.sort(array1_copy);
+    Arrays.sort(array2_copy);
+
+    int i = 0, j = 0;
+
+    while (i<array1.length && j < array2.length){
+        int diff = (array1_copy[i] - array2_copy[j])*2;
+        if ( diff == difference){
+            return new int[]{array1_copy[i], array2_copy[j]};
+        }else if (diff < difference){
+            i++;
+        }else {
+            j++;
+        }
+    }
+
+    return new int[]{};
+
+}
+```
