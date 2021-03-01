@@ -3190,3 +3190,127 @@ public int[] findSwapValues(int[] array1, int[] array2) {
 
 }
 ```
+
+
+### [16.22. Langtons Ant LCCI](https://leetcode-cn.com/problems/langtons-ant-lcci/)
+
+- Put all visited coordinates to a hashmap, key is a Position object, value is the color
+- create a counter-clock direction, if white block, index++ will be next direction, if black block, index--, will be the next direction.
+- note the position object is going to be the key of hashmap, so, its hash() and equal() should be overridden.
+- find the max and min colum and row, form a new string array.
+
+
+```java
+private class Position{
+        private final int x;
+        private final int y;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Position position = (Position) o;
+            return x == position.x && y == position.y;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
+
+        Position (int x, int y){
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+    }
+
+
+
+    public List<String> printKMoves(int K) {
+        int x = 0, y = 0;
+        Map<Position, String> board = new HashMap<>();
+
+        String[] directions = {"R","D", "L", "U"};
+        int[][] move = {{1,0}, {0,-1},{-1,0},{0, 1}};
+        int direction = 0;
+        int preCondition = 0;
+        while (K > 0){
+            Position currentPosition = new Position(x, y);
+            preCondition = direction;
+
+            if (board.containsKey(currentPosition) ){
+                if (board.get(currentPosition).equals("X")){
+                    direction = (direction-1+4)%4;
+                    board.put(currentPosition, "_");
+                }else {
+                    direction = (direction+1)%4;
+                    board.put(currentPosition, "X");
+
+                }
+
+            }else {
+                direction = (direction+1)%4;
+                board.put(currentPosition, "X");
+            }
+            x = x + move[direction][0];
+            y = y + move[direction][1];
+            K--;
+        }
+
+        board.put(new Position(x, y), directions[direction]);
+
+
+
+
+        int rowMin = Integer.MAX_VALUE;
+        int rowMax = Integer.MIN_VALUE;
+        int colMin = Integer.MAX_VALUE;
+        int colMax = Integer.MIN_VALUE;
+
+
+        for (Position position : board.keySet()) {
+            if (position.getY() >rowMax){
+                rowMax = position.getY();
+            }
+            if (position.getY() < rowMin){
+                rowMin = position.getY();
+            }
+            if (position.getX() > colMax){
+                colMax = position.getX();
+            }
+            if (position.getX() < colMin){
+                colMin = position.getX();
+            }
+
+        }
+
+
+
+        StringBuilder sb = new StringBuilder();
+
+        List<String> li = new ArrayList<>();
+
+        for (int j = rowMax; j >= rowMin; j--) {
+            for (int i = colMin; i <= colMax; i++) {
+                Position p = new Position(i, j);
+                sb.append(board.getOrDefault(p, "_"));
+            }
+            li.add(sb.toString());
+            sb.setLength(0);
+        }
+        String[] ans = new String[li.size()];
+
+        li.toArray(ans);
+
+
+        return li;
+    }
+```
