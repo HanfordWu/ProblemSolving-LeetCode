@@ -3430,3 +3430,73 @@ class LRUCache {
     }
 }
 ```
+
+### [16.26. Calculator LCCI](https://leetcode-cn.com/problems/calculator-lcci/)
+
+- Give each operator a weight, the weight of *, / are the same, greater than +, -. (if there is more complicated expression, we can assign more weight to more operators)
+- whenever there is a number, push it to operands stack
+- whenever there is an operator, compare it with the top of operator stack, if greater, push current operator to the stack as well. if smaller or equal, pop the two operands of the stack, use the top of the operator stack to calculate, push the result to operand stack.
+- At the end, compute all the remained operators and operands. (the remained operators are from most to the least, we can calculate them from the top to the bottom)
+
+
+
+```java
+public int calculate(String s) {
+    Stack<Character> operators = new Stack<>();
+    Stack<Integer> operands = new Stack<>();
+
+    HashMap<Character, Integer> operatorDic = new HashMap<>();
+    operatorDic.put('+', 1);
+    operatorDic.put('-', 1);
+    operatorDic.put('*', 2);
+    operatorDic.put('/', 2);
+
+    s = s.replaceAll("\\s", "");
+
+    int currentNum = 0;
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i);
+        if (c <=57 && c >=48){
+            currentNum = currentNum * 10 + c - 48;
+
+        }else {
+            operands.push(currentNum);
+            currentNum = 0;
+
+            while (!operators.isEmpty() && operatorDic.get(c) <= operatorDic.get(operators.peek())) {
+                int cal1 = cal(operands.pop(), operands.pop(), operators.pop());
+                operands.push(cal1);
+            }
+            operators.push(c);
+        }
+    }
+
+    operands.push(currentNum);
+
+    while (!operators.isEmpty()){
+        int cal = cal(operands.pop(), operands.pop(), operators.pop());
+        operands.push(cal);
+    }
+    return operands.pop();
+
+}
+
+
+private static int cal(int op1, int op2, char operator){
+
+    if (operator == '+'){
+        return op1 + op2;
+    }
+    if (operator == '-'){
+        return op2 - op1;
+    }
+    if (operator == '*'){
+        return op1 * op2;
+    }
+    if (operator == '/'){
+        return op2 / op1;
+    }
+
+    return 0;
+}
+```
