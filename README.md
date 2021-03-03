@@ -3521,3 +3521,60 @@ public int add(int a, int b) {
 }
 ```
 
+### [17.04. Missing Number LCCI](https://leetcode-cn.com/problems/missing-number-lcci/)
+
+```java
+public int missingNumber(int[] nums) {
+    int[] num = new int[nums.length+1];
+    for (int i : nums) {
+        num[i]++;
+    }
+    for (int i = 0; i < num.length; i++) {
+        if (num[i] == 0){
+            return i;
+        }
+    }
+    return -1;
+}
+```
+
+#### Using Xor
+
+Idea:
+If a ^ b ^ b, we get a.
+
+eg: [0,2,3], we define a res = 0; we use res xor all indexes from 0 to 2, finally xor nums.length.
+
+if one index has index which is equal to it, then it will disappear.
+
+res(0) ^ 0 ^ 0 ^ 1^ 2 ^ 2 ^ 3 ^ 3(length) = 1
+
+```java
+public int missingNumber(int[] nums) {
+    int res = 0;
+    for(int i = 0; i < nums.length; i++){
+        res = res ^ i;
+        res = res ^ nums[i];
+    }
+    res = res ^ nums.length;
+    return res;
+}
+```
+
+
+#### Using sum
+
+```java
+public int missingNumber(int[] nums) {
+        int sumElement = 0;
+        int sumIndexes = 0;
+        for(int i : nums){
+            sumElement+=i;
+        }
+        for(int i = 0; i <= nums.length; i++){
+            sumIndexes += i;
+        }
+        return sumIndexes-sumElement;
+    }
+```
+This approach can result in integer overflow.
