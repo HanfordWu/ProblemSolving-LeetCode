@@ -3612,3 +3612,89 @@ class Solution {
     }
 }
 ```
+
+
+### [17.08. Circus Tower LCCI](https://leetcode-cn.com/problems/circus-tower-lcci/)
+
+### Dynamic programming
+
+- Sort height and weight together ascending according to height
+- if the same height, we sort weight descending order. The reason for this is that after sorting, we are going to find a increasing subset of weight, if the same height we have an ascending order, the increasing subset will have same duplicated height, which is not the correct answer.
+
+
+
+```java
+class Solution {
+    public int bestSeqAtIndex(int[] height, int[] weight) {
+        int length = height.length;
+        int[][] com = new int[length][2];
+        for (int i = 0; i < length; i++) {
+            com[i][0] = height[i];
+            com[i][1] = weight[i];
+        }
+        Arrays.sort(com, (a, b) -> a[0] == b[0]? b[1] - a[1] : a[0] - b[0]);
+        int[] dp = new int[length];
+        int res = 1;
+        for (int i = 0; i < length; i++) {
+            dp[i] = 1;
+            for (int j = 0; j < i; j++) {
+                if (com[i][1] > com[j][1] ){
+                    dp[i] = Math.max(dp[i], dp[j]+1);
+                }
+            }
+            res = Math.max(res, dp[i]);
+        }
+        return res;
+    }
+}
+```
+However, because the second step, finding the increasing weight subset is n^2 time complexity, above solution exceed the time limit.
+
+#### Greedy algorithm
+
+For weight array, we want find a longest increasing sub-array. For each step, we build an array, if new coming element are greater than the most right, we add it to the array at the end, if new coming element are in the middle, we insert coming element to current array. Even though the finally array is not a correct increasing subset, but we can get the length of it.
+
+eg.
+[5,3,2,5,6,1,3,4,5]
+dp:
+[5] (i=1) res = 1
+[3] (i=2) res =1
+[2] (i=3) res = 1
+[2,5] (i=4) res = 2
+[2,5,6] (i = 5) res = 3
+[1,5,6] (i=6) (binarySearch find 1 should be insert in the index of 0, so we update index 0) res = 3
+[1,3,6] (i = 7) (3 replace 5)
+[1,3,4] (i=8) (4 replace 6)
+[1,3,4,5] (i=9) res = 4
+
+Note, every iteration, we binary search from index 0 to res.
+
+
+```java
+class Solution {
+    public int bestSeqAtIndex(int[] height, int[] weight) {
+        int length = height.length;
+        int[][] com = new int[length][2];
+        for (int i = 0; i < length; i++) {
+            com[i][0] = height[i];
+            com[i][1] = weight[i];
+        }
+        Arrays.sort(com, (a, b) -> a[0] == b[0]? b[1] - a[1] : a[0] - b[0]);
+
+        int[] dp = new int[length];
+        dp[0] = com[0][1];
+        int res = 1;
+        for (int i = 1, j = 1; i < length; i++) {
+            //Arrays.binarySearch(dp, 0, res, com[i][1]) means do binary search on array dp to find com[i][1], from index 0 to res. If it find com[i][1], it will return its index, if not, it will return -shouldInsertIndex - 1, a negative number. we can get insert it by getting shouldInsertIndex = -(returnValue+1)
+            int i1 = Arrays.binarySearch(dp,0,res, com[i][1]);
+            if (i1 < 0) {
+                i1 = -(i1+1);
+            }
+            dp[i1] = com[i][1];
+            if (i1+1 > res) res = i1+1;
+        }
+
+        return res;
+    }
+}
+```
