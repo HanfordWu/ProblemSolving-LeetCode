@@ -3578,3 +3578,37 @@ public int missingNumber(int[] nums) {
     }
 ```
 This approach can result in integer overflow.
+
+
+
+### [300. Longest Increasing Subsequence](https://leetcode-cn.com/problems/longest-increasing-subsequence/)
+
+#### Dynamic programming
+
+- create another array with same length, dp
+- this array will store the length of increasing array up to current index. e.g. dp[2] = 2 means up to array[2], the length of increasing array is 2. also means before index 2, there is only one element is smaller than array[2].
+- iterate array dp, e.g, at index i, check how many elements are smaller than array[i], then dp[i] = Max(dp[j] + 1), note the index j, array[j] < array[i].
+- For each outer iteration, record the biggest element.
+
+
+```java
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int[] dp = new int[nums.length];
+        int res = 1;
+        for (int i = 0; i < nums.length; i++) {
+            dp[i] = 1;
+            for (int j = 0; j < i; j++) {
+                if (nums[j] < nums[i]){
+                    //dp[i] = Max(dp[j] + 1)
+                    if (1+dp[j]>dp[i] ){
+                        dp[i] = dp[j] + 1;
+                    }
+                }
+            }
+            if (dp[i] > res) res = dp[i];
+        }
+        return res;
+    }
+}
+```
