@@ -3849,3 +3849,39 @@ class Solution {
 If we are going to query many times on same string, we would better use method 1, a Hashtable.
 
 
+### [17.12. BiNode LCCI](https://leetcode-cn.com/problems/binode-lcci/)
+
+- In-order traverse
+- On each node, set pre-node.right = current node, current.left = nul
+- set pre = current node
+
+We use a class field as pre node, the pre node keep changing with the traversal
+
+```java
+class Solution {
+    private TreeNode head = null;
+    private TreeNode pre = null;
+
+    public TreeNode convertBiNode(TreeNode root) {
+        helper(root);
+        return head;
+    }
+
+    private void helper(TreeNode root) {
+        if (root == null) return;
+
+        helper(root.left);
+
+        if (pre == null) {
+            pre = root;
+            head = root;
+        } else {
+            pre.right = root;
+            pre = root;
+        }
+        root.left = null;
+        helper(root.right);
+    }
+}
+```
+
