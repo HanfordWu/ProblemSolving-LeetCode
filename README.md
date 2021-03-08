@@ -3885,3 +3885,50 @@ class Solution {
 }
 ```
 
+### [17.16. The Masseuse LCCI](https://leetcode-cn.com/problems/the-masseuse-lcci/)
+
+Dynamic programming:
+
+
+```java
+class Solution {
+    public int massage(int[] nums) {
+        if (nums.length == 0){
+            return 0;
+        }
+
+        int[][] arr = new int[nums.length][2];
+
+        arr[0][0] = 0;
+        arr[0][1] = nums[0];
+
+
+        for (int i = 1; i < nums.length; i++) {
+            arr[i][0] = Math.max(arr[i-1][0], arr[i-1][1]);
+            arr[i][1] = arr[i-1][0] + nums[i];
+        }
+
+        return Math.max(arr[nums.length-1][0], arr[nums.length-1][1]);
+
+    }
+}
+```
+
+Because arr[i][0] and arr[i][1] are only related to arr[i-1][0] and arr[i-1][1], so we can use two variables instead of two dimension array.
+
+```java
+class Solution {
+    public int massage(int[] nums) {
+        if (nums.length == 0){
+            return 0;
+        }
+        int a = 0, b = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            int temp = b;
+            b = a + nums[i];
+            a = Math.max(a, temp);
+        }
+        return Math.max(a, b);
+    }
+}
+```
