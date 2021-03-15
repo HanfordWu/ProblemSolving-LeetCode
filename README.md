@@ -3932,3 +3932,25 @@ class Solution {
     }
 }
 ```
+[Array Manipulation](https://www.hackerrank.com/challenges/crush/problem?h_l=interview&playlist_slugs%5B%5D=interview-preparation-kit&playlist_slugs%5B%5D=arrays)
+
+```python
+def arrayManipulation(n, queries):
+    arr = [0] * (n + 1)
+
+    for query in queries:
+        arr[query[0] - 1] += query[2]
+        arr[query[1]] -= query[2]
+
+    # for i in range(len(arr) - 1):
+    #     arr[i + 1] = arr[i] + arr[i + 1]
+
+    ans = -sys.maxsize
+    sum = 0
+    for i in arr:
+        sum+=i
+        if sum > ans:
+            ans = sum
+
+    return ans
+```
